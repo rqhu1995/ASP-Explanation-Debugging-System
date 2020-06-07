@@ -5,7 +5,7 @@ import javax.persistence.*;
 @Entity(name = "literals")
 public class Literal {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lit_id")
     private int id;
     @Column(name = "lit")

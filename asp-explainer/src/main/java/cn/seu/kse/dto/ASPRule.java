@@ -1,11 +1,12 @@
 package cn.seu.kse.dto;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity(name = "aspRule")
 public class ASPRule {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rule_id")
     private int id;
 
@@ -78,5 +79,20 @@ public class ASPRule {
 
     public void setNegBodyIDList(String negBodyList) {
         this.negBodyIDList = negBodyList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ASPRule aspRule = (ASPRule) o;
+        return headID.equals(aspRule.headID) &&
+                posBodyIDList.equals(aspRule.posBodyIDList) &&
+                negBodyIDList.equals(aspRule.negBodyIDList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(headID, posBodyIDList, negBodyIDList);
     }
 }

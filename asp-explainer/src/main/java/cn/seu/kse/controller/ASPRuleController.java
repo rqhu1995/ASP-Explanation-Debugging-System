@@ -9,7 +9,7 @@ import cn.seu.kse.service.ASPPrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 @CrossOrigin
 @RestController
@@ -27,9 +27,9 @@ public class ASPRuleController {
     ResultInfo result = new ResultInfo();
     result.setData(aspCode);
     result.setStatus(1);
-    ArrayList<ASPRule> aspProgram = aspPrgService.programParser(aspCode);
+    HashSet<ASPRule> aspProgram = aspPrgService.programParser(aspCode);
     for (ASPRule aspRule : aspProgram) {
-      aspRuleRepository.save(aspRule);
+      aspPrgService.saveRule(aspRule);
     }
     return result;
   }
