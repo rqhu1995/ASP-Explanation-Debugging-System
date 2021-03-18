@@ -25,6 +25,9 @@ public class AnswerSetResponse {
   }
 
   public void addAnswerSet(HashSet<Literal> answerSet) {
+   // for (Literal literal : answerSet) {
+   //   System.out.println(literal.getLit());
+  //  }
     if (this.answerSet == null) {
       this.answerSet = new HashSet<>();
     }

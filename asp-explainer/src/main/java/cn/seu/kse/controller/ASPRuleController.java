@@ -41,28 +41,120 @@ public class ASPRuleController {
     //System.out.println(aspCode.replace(".",".\n").substring(0,aspCode.length()-1));
     String aspCodeTemp = aspCode.replace(".",".\n");
     aspCodeTemp = aspCodeTemp.substring(0,aspCodeTemp.length()-1);
-    //System.out.println(aspCodeTemp);
+   // System.out.println(aspCodeTemp);
     ArrayList<String>ansArray = new ArrayList<String>();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
     for (ASPRule aspRule : aspRules) {
+      //System.out.println(aspRule.getVar());
+      if(aspRule.getVar() == "") continue;
       aspPrgService.saveRule(aspRule);
       String[] HeadID = aspRule.getHeadID().split(",");
+      ArrayList<String> posBody = new ArrayList<String>();
+      ArrayList<String> negBody = new ArrayList<String>();
+      String commonHead = "head(";
       for (String s : HeadID) {
+        s = s.trim();
+        if(s == "") continue;
           LitNode literThroughID = new LitNode(
                   Objects.requireNonNull(
                           literalRepository.findById(Integer.parseInt(s)).orElse(null)));
           //System.out.println(literThroughID.getLiteral());
+          if(commonHead.charAt(commonHead.length()-1)=='(')
+            commonHead += literThroughID.getLiteral();
+          else
+            commonHead += (","+literThroughID.getLiteral());
       }
+      commonHead += "),p(";
       String[] posBodyID  = aspRule.getPosBodyIDList().split(",");
+      for (String s : posBodyID) {
+        s = s.trim();
+        if(s == "") continue;
+
+          LitNode literThroughID = new LitNode(
+                  Objects.requireNonNull(
+                          literalRepository.findById(Integer.parseInt(s)).orElse(null)));
+          //System.out.println(literThroughID.getLiteral());
+          posBody.add(literThroughID.getLiteral());
+          if(commonHead.charAt(commonHead.length()-1)=='(')
+            commonHead += literThroughID.getLiteral();
+          else
+            commonHead += (","+literThroughID.getLiteral());
+      }
+      commonHead += "),n(";
       String[] negBodyID = aspRule.getNegBodyIDList().split(",");
-      String[] var = aspRule.getVar().split(",");
+      for (String s : negBodyID) {
+        s= s.trim();
+        if(s == "") continue;
+        LitNode literThroughID = new LitNode(
+                Objects.requireNonNull(
+                        literalRepository.findById(Integer.parseInt(s)).orElse(null)));
+        //System.out.println(literThroughID.getLiteral());
+        negBody.add(literThroughID.getLiteral());
+        if(commonHead.charAt(commonHead.length()-1)=='(')
+          commonHead += literThroughID.getLiteral();
+        else
+          commonHead += (","+literThroughID.getLiteral());
+      }
+      commonHead += "))";
+      boolean flag = false;
+      String bodyAll = "ap(" + commonHead + ":-";
+      for (String s : posBody) {
+          if(flag)
+            bodyAll += ("," + s);
+          else {
+            bodyAll += s;
+            flag = true;
+          }
+          String[] var = aspRule.getVar().split(",");
+          String blp = "blp(" + commonHead + ":-" + "not " + s;
 
-      //ansArray.add("ap(head("+aspRule.get+"),p("+posString+"),n("+negString+")):-"+rule.substring(rule.indexOf('-')+1)+".");
+          if(bind.containsKey(s)) {
+              if(bind.get(s).equals("(true)")) continue;
+              blp += ("," + bind.get(s));
+          }
+          else{
+              for (String s1 : var) {
+                  blp += (",var(" + s1 + ")");
+              }
+          }
+          ansArray.add(blp + ".");
+      }
+      for (String s : negBody) {
+        if(flag)
+          bodyAll += (", not " + s);
+        else {
+          bodyAll += ("not " + s);
+          flag = true;
+        }
+        String[] var = aspRule.getVar().split(",");
+        String bln = "bln(" + commonHead + ":-"  + s;
+
+        if(bind.containsKey(s)) {
+          if(bind.get(s).equals("(true)")) continue;
+          bln += ("," + bind.get(s));
+        }
+        else{
+          for (String s1 : var) {
+            bln += (",var(" + s1 + ")");
+          }
+        }
+        ansArray.add(bln + ".");
+      }
+      ansArray.add(bodyAll+".");
     }
-    //System.out.println(aspRules);
+    String AspProgram = "";
+    for(String s:ansArray){
+      AspProgram+=s;
+    }
+    System.out.println(AspProgram);
+    AspProgram+=aspCode;
+    //AspProgram+="#show ap/3.";
+    //AspProgram+="#show blp/3.";
+    //AspProgram+="#show bln/3.";
+    AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram);
+   //HashSet<HashSet<Literal> > = answerSetResponse.getAnswerSet();
 
-
-    HashSet<String> aspProgram = new HashSet<String>();
+    /*HashSet<String> aspProgram = new HashSet<String>();
     for(String retval: aspCode.split("\\.")){
       aspProgram.add(retval);
     }
@@ -147,8 +239,9 @@ public class ASPRuleController {
       tempString+=".";
       answerAsp+=tempString;
     }
-    //result.setStatus(1);
-    //result.setData(answerSetResponse);
+    */
+    result.setStatus(1);
+    result.setData(answerSetResponse);
     return result;
   }
   /**

@@ -15,5 +15,6 @@ public interface ASPPrgService {
 
   AnswerSetResponse solveAndGetAnswerSet(String aspCode) throws IOException;
 
+  AnswerSetResponse solveAndGetGrounding(String aspCode) throws  IOException;
   void clearAll();
 }
