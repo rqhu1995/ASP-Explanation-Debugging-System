@@ -3,24 +3,25 @@ package cn.seu.kse.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResultInfo {
-    @JsonProperty("status")
-    private Integer status;
-    @JsonProperty("data")
-    private Object data;
+  @JsonProperty("status")
+  private Integer status;
 
-    public Integer getStatus() {
-        return status;
-    }
+  @JsonProperty("data")
+  private Object data;
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+  public Integer getStatus() {
+    return status;
+  }
 
-    public Object getData() {
-        return data;
-    }
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 
-    public void setData(Object data) {
-        this.data = data;
-    }
+  public Object getData() {
+    return data;
+  }
+
+  public void setData(Object data) {
+    this.data = data;
+  }
 }

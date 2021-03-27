@@ -53,64 +53,42 @@
     <!-- run, clear & beautify buttons -->
     <div class="row mb-4 justify-content-center mx-4">
         <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="getCode()">
-                求回答集
+            <button type="button"  class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="getCodeAndSolve()">
+                Solve with <br> Clingo
             </button>
         </div>
         <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="consoleCode()">
-                解释空间
+            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="selectAnswerSetAndAssumption()">
+              Explanation <br> Universe
             </button>
         </div>
         <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="beautifyContent()">
-                文件上传...
+            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="clearAll()">
+                Clear <br> Record
             </button>
         </div>
     </div>
 
     <!-- output box -->
-    <div class="row mt-4">
+    <div *ngIf="!startExplanation" class="row mt-4">
         <div class="col">
             <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
-            <textarea class="form-control output" rows="6" disabled="true" aria-label="output-textarea"></textarea>
+            <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
+            </textarea>
         </div>
     </div>
+
+  <div *ngIf="startExplanation" >
+    <h3>
+      Choose the answer set for explanation:
+    </h3>
+    <nz-radio-group [ngModel]="0">
+      <div *ngFor="let ans of answerSetList; let i = index">
+      <label nz-radio [nzValue]="i">
+        Answer {{i+1}} : {{answerSetDisplay(ans)}}
+      </label>
+      </div>
+    </nz-radio-group>
+  </div>
+
 </div>
-
-
-<script>
-  var Clingo = {
-        preRun: [],
-        postRun: [],
-        print: function(text) {
-            const p = document.createElement('p');
-            p.innerText = text;
-            document.getElementById('out').appendChild(p);
-        },
-        printErr: function(err) {
-            Clingo.setStatus('Error')
-            console.error(err)
-        },
-        onRuntimeInitialized: function() {
-            this.ccall('run', 'number', ['string', 'string'], [document.getElementById('input').innerText, '0'])
-        },
-        setStatus: function(text) {
-            document.getElementById('status').innerText = text;
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-            this.totalDependencies = Math.max(this.totalDependencies, left);
-            Clingo.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
-    };
-    window.onerror = function(event) {
-        Clingo.setStatus('Exception thrown, see JavaScript console');
-        Clingo.setStatus = function(text) {
-            if (text) Clingo.printErr('[post-exception status] ' + text);
-        };
-    };
-    Clingo.setStatus('Downloading...');
-
-    Module(Clingo);
-</script>

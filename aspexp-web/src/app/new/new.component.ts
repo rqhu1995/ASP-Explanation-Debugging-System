@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -18,10 +18,18 @@ ace.config.set('themePath', '/assets');
   styleUrls: ['./new.component.css'],
 })
 export class NewComponent implements OnInit {
-  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  @ViewChild('codeEditor', {static: true}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
 
-  constructor(private codeSender: CodeSendService) {}
+  outputBox: String;
+  answerSet: any;
+  answerSetList: any = [];
+  startExplanation: boolean = false;
+  selectedAnswerSet: any;
+
+  constructor(private codeSender: CodeSendService) {
+    this.outputBox = "";
+  }
 
   ngOnInit() {
     ace.require('ace/ext/language_tools');
@@ -38,14 +46,62 @@ export class NewComponent implements OnInit {
     this.codeEditor.setShowFoldWidgets(true); // for the scope fold feature
   }
 
-  getCode() {
+  getCodeAndSolve() {
     console.log(this.codeSender == undefined);
     const codes = this.codeEditor.getValue().toString();
-    // const aspprg: Aspprogram = {programContent: codes}
     this.codeSender.sendCode(codes).subscribe(
       res => {
         console.log(res);
+        this.answerSet = res.data.answerSet;
+        this.outputBox = "";
+        if (!res.data.satisfiable) {
+          this.outputBox = "Inconsistent Program!\n";
+        } else {
+          this.outputBox += "Answer Sets Solved by CLINGO: \n\n";
+          for (const answerSetElement of res.data.answerSet) {
+            const index : number = res.data.answerSet.indexOf(answerSetElement) + 1;
+            this.outputBox += "Answer " + index + ": \n";
+            for (const ans of answerSetElement) {
+              this.outputBox += ans.lit + " ";
+            }
+            this.outputBox += "\n\n";
+          }
+          this.outputBox += "Solving Completed!";
+        }
       }
-    );
+    )
+  }
+
+  clearAll() {
+    this.codeSender.clearAll().subscribe(
+      res => {
+        if (res.status === 1) {
+          window.alert("All records cleared!");
+        } else {
+          window.alert("Failed to clear all records, try again!");
+        }
+        window.location.reload();
+      }
+    )
+
+  }
+
+  selectAnswerSetAndAssumption() {
+    this.answerSetList = [];
+    for (const answerSetElement of this.answerSet) {
+      this.answerSetList.push(answerSetElement);
+    }
+    this.startExplanation = true;
+  }
+
+  answerSetDisplay(ans: any) {
+    let str: String = '{'
+    for (const ansLiteral of ans) {
+      str += ansLiteral.lit + ",";
+    }
+    if(str.endsWith(","))
+      str = str.substring(0, str.length - 1);
+    str += "}";
+    return str;
   }
 }

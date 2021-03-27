@@ -4,34 +4,34 @@ import javax.persistence.*;
 
 @Entity(name = "literals")
 public class Literal {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lit_id")
-    private int id;
-    @Column(name = "lit")
-    private String lit;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "lit_id")
+  private int id;
 
-    public Literal() {
-    }
+  @Column(name = "lit")
+  private String lit;
 
-    public Literal(int id, String lit) {
-        this.id = id;
-        this.lit = lit;
-    }
+  public Literal() {}
 
-    public int getId() {
-        return id;
-    }
+  public Literal(int id, String lit) {
+    this.id = id;
+    this.lit = lit;
+  }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public String getLit() {
-        return lit;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public void setLit(String lit) {
-        this.lit = lit;
-    }
+  public String getLit() {
+    return lit;
+  }
+
+  public void setLit(String lit) {
+    this.lit = lit;
+  }
 }

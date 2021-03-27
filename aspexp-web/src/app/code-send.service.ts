@@ -16,4 +16,8 @@ export class CodeSendService {
     return this.http.post<any>("http://localhost:8080/parseprogram", data, { headers: this.headers });
   }
 
+  clearAll(): Observable<any> {
+    return this.http.get<any>("http://localhost:8080/clearall");
+  }
+
 }

@@ -9,20 +9,26 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin
 @Service
 public class ASPLiteralServiceImpl implements ASPLiteralService {
-  @Autowired
-  LiteralRepository literalRepository;
+  @Autowired LiteralRepository literalRepository;
 
   @Override
   public int saveLiteral(String literal) {
-    if(literalRepository.findByLit(literal).size() != 0){
-//      System.out.println("not null!!" + literalRepository.findByLit(literal));
-//      System.out.println(literalRepository.findByLit(literal).get(0).getLit());
+    if (literalRepository.findByLit(literal).size() != 0) {
       return literalRepository.findByLit(literal).get(0).getId();
-    } else{
+    } else {
       Literal litToSave = new Literal();
       litToSave.setLit(literal);
       literalRepository.save(litToSave);
       return litToSave.getId();
+    }
+  }
+
+  @Override
+  public Literal findByLiteral(String literal) {
+    if (literalRepository.findByLit(literal).size() != 0) {
+      return literalRepository.findByLit(literal).get(0);
+    } else {
+      return null;
     }
   }
 }

@@ -28,6 +28,10 @@ select.languages-select > option {
     background: ghostwhite;
 }
 
-select.languages-select:focus > option:checked { 
+select.languages-select:focus > option:checked {
     font-weight: bold;
+}
+
+div.answersetdisplay {
+  font-size: large;
 }

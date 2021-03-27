@@ -8,6 +8,8 @@ import {CodeSendService} from './code-send.service';
 import {Aspprogram} from './object/aspprogram';
 import { GroundingComponent } from './grounding/grounding.component';
 import { AppRoutingModule } from './app-routing.module';
+import {NzRadioModule} from "ng-zorro-antd";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { AppRoutingModule } from './app-routing.module';
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NzRadioModule,
+    FormsModule
   ],
   providers: [CodeSendService, Aspprogram],
   bootstrap: [AppComponent]
