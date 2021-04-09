@@ -72,9 +72,13 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   public AnswerSetResponse solveAndGetAnswerSet(String aspCode) throws IOException {
     String answerString =
         ShellExecutor.callShell(
-            "echo \""
-                + aspCode.replace(System.getProperty("line.separator"), " ")
-                + "\" | clingo 0 - ");
+            "echo "
+                + aspCode.replace("\n", " ")
+                + " | clingo 0");
+//    System.out.println(
+//            "echo "
+//                + aspCode.replace(System.getProperty("\n"), " ")
+//                + " | clingo 0");
     System.out.println("String + " + answerString);
     AnswerSetResponse answerSetResponse = new AnswerSetResponse();
     if (answerString.contains("UNSAT")) {

@@ -9,7 +9,7 @@ public final class ShellExecutor {
 
   public static String callShell(String command) throws IOException {
     ProcessBuilder builder =
-        new ProcessBuilder("/bin/bash", "-c", command).redirectErrorStream(true);
+        new ProcessBuilder("cmd", "/c", command).redirectErrorStream(true);
     Process process = builder.start(); // may throw IOException
     /* 此Process对象表示的子进程的退出值。 按照惯例，值0表示正常终止。
     // 调用此方法保证同步调用

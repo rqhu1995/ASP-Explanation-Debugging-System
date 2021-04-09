@@ -1,0 +1,27 @@
+{
+    "results": [{
+        "columns": ["user", "entity"],
+        "data": [{
+            "graph": {
+                "nodes": [{
+                    "id": "1",
+                    "labels": ["User"],
+                    "properties": {
+                        "userId": "eisman"
+                    }
+                },
+                {
+                    "id": "2",
+                    "labels": ["User"],
+                    "properties": {
+                        "userId": "eisman",
+                        "used": "true"
+                    }
+                }
+            ],
+                "relationships": []
+            }
+        }]
+    }],
+    "errors": []
+}

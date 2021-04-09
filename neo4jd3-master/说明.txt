@@ -1,0 +1,64 @@
+1.一开始就显示在前端的节点
+{
+    "results": [{
+        "columns": ["user", "entity"],  //写成这样就行
+        "data": [{
+            "graph": {
+                "nodes": [
+                    {
+                        id: string;
+                        labels: string[];
+                        properties:
+                        {
+                        userId: string;    //可以为空
+                        used: string;       //'false' or 'true' ，在该情况下都为true。
+                        name: string;      //可以为空
+                        title: string;     //可以为空
+                        description: string;  //可以为空
+                        url: string;       //可以为空
+                        }
+                    }  
+            ],
+                "relationships": []
+            }
+        }]
+    }],
+    "errors": []
+}
+
+2.所有的节点和边
+  var data = {
+            nodes: [
+                {
+                    {
+                        id: string;
+                        labels: string[];
+                        properties:
+                        {
+                        userId: string;    //可以为空
+                        used: string;       //'false' or 'true' ，除了在情况1中的节点全为'false'。
+                        name: string;      //可以为空
+                        title: string;     //可以为空
+                        description: string;  //可以为空
+                        url: string;       //可以为空
+                        }
+                    }  
+                },
+            ],
+            relationships: [
+                {
+                    id: string;
+                    type: string;
+                    startNode: string;
+                    endNode: string;
+                    properties: 
+                    {
+                        from: number;
+                        used: string;  //'false' or 'true' ，初始情况全为'false'。
+                    };
+                    source: string;
+                    target: string;
+                    linknum: number;
+                }
+            ]
+        }
