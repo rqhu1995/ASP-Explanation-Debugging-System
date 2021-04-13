@@ -23,6 +23,109 @@ public class ASPRuleController {
   @Autowired ASPPrgService aspPrgService;
   @Autowired ASPLiteralService aspLiteralService;
 
+  @GetMapping("/grounding")
+  @ResponseBody
+  public ResultInfo grounding(@RequestParam String aspCode,@RequestParam ArrayList<String> atom,@RequestParam String preBind) throws IOException {
+    ResultInfo result = new ResultInfo();
+    HashMap bind = new HashMap<String,String>();
+    if(preBind.length()!=0) {
+      String[] prebindString = preBind.split("\\),");
+      for (String t : prebindString) {
+        String[] temp = t.split(":");
+        if (temp[1].charAt(temp[1].length() - 1) != ')') temp[1] += ")";
+        bind.put(temp[0], temp[1]);
+      }
+    }
+    //bind.put("penguin(X)","bird(X)");
+    HashSet<String> aspProgram = new HashSet<String>();
+    for(String retval: aspCode.split("\\.")){
+      aspProgram.add(retval);
+    }
+    ArrayList<String>ansArray = new ArrayList<String>();
+    String temp = "";
+    for(String rule : aspProgram){
+       if(rule.contains(":-")){
+            String []splitArray = rule.split(":-");
+            String []headArray = splitArray[0].split("\\),");
+            String []bodyArray = splitArray[1].split("\\),");
+            HashSet<String> posArray = new HashSet<String>();
+            HashSet<String> negArray = new HashSet<String>();
+             String headString = "",posString="",negString = "";
+            for(String t:bodyArray){
+              t = t.trim();
+           //   System.out.println(t);
+              if(t.charAt(t.length()-1)!=')') t+=')';
+              if(t.contains("not")){
+                negString+=(t.substring(t.indexOf(' ')+1)+',');
+                negArray.add(t.substring(t.indexOf(' ')+1));
+              }
+              else{
+                posArray.add(t);
+                posString+=(t+',');
+              }
+            }
+            for(String t:headArray){
+              headString += (t+',');
+            }
+         headString = headString.substring(0,Math.max(headString.length()-1,0));
+         posString = posString.substring(0,Math.max(posString.length()-1,0));
+         negString = negString.substring(0,Math.max(negString.length()-1,0));
+         //System.out.println("ap(head("+headString+"),p("+posString+"),n("+negString+")):-"+rule.substring(rule.indexOf('-')+1));
+         ansArray.add("ap(head("+headString+"),p("+posString+"),n("+negString+")):-"+rule.substring(rule.indexOf('-')+1)+".");
+         for(String pos : posArray){
+           if(bind.containsKey(pos)) {
+             if(bind.get(pos).equals("(true)")) continue;
+             else ansArray.add("blp(head(" + headString + "),p(" + posString + "),n(" + negString + ")):-" + "not " + pos + "," + bind.get(pos) + ".");
+           }
+           else
+             ansArray.add("blp(head("+headString+"),p("+posString+"),n("+negString+")):-"+"not "+pos+",var(X)"+".");
+         }
+         for(String pos : negArray){
+             ansArray.add("bln(head("+headString+"),p("+posString+"),n("+negString+")):-"+pos+".");
+         }
+         //System.out.println(ansArray);
+       }
+    }
+    for(String t:ansArray){
+      temp+=t;
+    }
+    temp+=aspCode;
+    temp+="#show ap/3.";
+    temp+="#show blp/3.";
+    temp+="#show bln/3.";
+    result.setStatus(1);
+    AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetAnswerSet(temp);
+    String ansCode = "ap(head(fly(tux)),p(bird(tux)),n(neg_fly(tux))) ap(head(neg_fly(tweety)),p(penguin(tweety)),n) bln(head(fly(tweety)),p(bird(tweety)),n(neg_fly(tweety))) blp(head(neg_fly(tux)),p(penguin(tux)),n)";
+    String[] ansRule  = ansCode.split(" ");
+    String answerAsp = "";
+    for(String t: ansRule){
+      String tempString = "";
+      int index1= t.indexOf("head("),index2 = t.indexOf("))");
+      tempString = t.substring(index1+5,index2+1)+":-";
+      int indexStartP = t.indexOf("p",index2);
+      if(t.charAt(indexStartP+1)  =='('){
+        int indexEndP = t.indexOf("))",indexStartP);
+        tempString += t.substring(indexStartP+2,indexEndP+1);
+        int indexStartN = t.indexOf("n",indexEndP);
+        if(t.charAt(indexStartN+1) =='('){
+          int indexEndN = t.length()-2;
+          tempString += (","+t.substring(indexStartN+2,indexEndN));
+        }
+      }
+      else{
+        int indexStartN = t.indexOf("n",indexStartP);
+        if(t.charAt(indexStartN+1) =='('){
+          int indexEndN = t.length()-2;
+          tempString += (t.substring(indexStartN+2,indexEndN));
+        }
+      }
+      tempString+=".";
+      answerAsp+=tempString;
+    }
+
+    result.setData(answerAsp);
+    return result;
+  }
   /**
    * 获取ASP程序，解析存放每条rule和每个lit
    *
@@ -33,10 +136,6 @@ public class ASPRuleController {
   @ResponseBody
   public ResultInfo programStoring(@RequestBody String aspCode) throws IOException {
     ResultInfo result = new ResultInfo();
-    HashSet<ASPRule> aspProgram = aspPrgService.programParser(aspCode);
-    for (ASPRule aspRule : aspProgram) {
-      aspPrgService.saveRule(aspRule);
-    }
     AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
     result.setStatus(1);
     result.setData(answerSetResponse);
@@ -61,8 +160,8 @@ public class ASPRuleController {
   @ResponseBody
   public ResultInfo constructExplanation(@RequestParam HashSet<String> answerSetRequest) {
     HashSet<String> answerSet = new HashSet<>();
-
     for (String asRequest : answerSetRequest) {
+      System.out.println(asRequest);
       answerSet.add(asRequest.replace("\"", ""));
     }
     ResultInfo result = new ResultInfo();
