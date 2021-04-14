@@ -33,6 +33,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   @Override
   public HashSet<ASPRule> programParser(String aspProgram) {
     HashSet<ASPRule> programRules = new HashSet<>();
+
     String[] rules = aspProgram.split("\n");
     for (String rule : rules) {
       if (rule.startsWith("%")) {
@@ -70,6 +71,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
 
   @Override
   public AnswerSetResponse solveAndGetAnswerSet(String aspCode) throws IOException {
+   // System.out.println("123333333");
     String answerString =
         ShellExecutor.callShell(
             "echo "
@@ -79,6 +81,8 @@ public class ASPPrgServiceImpl implements ASPPrgService {
 //            "echo "
 //                + aspCode.replace(System.getProperty("\n"), " ")
 //                + " | clingo 0");
+    //System.out.print(2334);
+    //System.out.println(answerString.length());
     System.out.println("String + " + answerString);
     AnswerSetResponse answerSetResponse = new AnswerSetResponse();
     if (answerString.contains("UNSAT")) {
@@ -92,6 +96,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
         if (meetAnswerFlag) {
           HashSet<Literal> answerSet = new HashSet<>();
           String[] singleAnswer = line.split(" ");
+          System.out.print(singleAnswer);
           if (line.equals("\n")) {
             answerSet.add(new Literal());
           }
@@ -107,6 +112,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
         }
       }
     }
+    System.out.println(answerSetResponse.getAnswerSet());
     return answerSetResponse;
   }
 

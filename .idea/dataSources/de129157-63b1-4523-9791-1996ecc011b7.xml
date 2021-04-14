@@ -935,23 +935,27 @@ SELECT|sys.sys_config
       <DataType>tinyint|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="291" parent="283" name="PRIMARY">
+    <column id="291" parent="283" name="var">
+      <Position>7</Position>
+      <DataType>varchar(45)|0s</DataType>
+    </column>
+    <key id="292" parent="283" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>rule_id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="292" parent="284" name="lit_id">
+    <column id="293" parent="284" name="lit_id">
       <Position>1</Position>
       <DataType>int unsigned|0s</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="293" parent="284" name="lit">
+    <column id="294" parent="284" name="lit">
       <Position>2</Position>
       <DataType>varchar(45)|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="294" parent="284" name="PRIMARY">
+    <key id="295" parent="284" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>lit_id</ColNames>
       <Primary>1</Primary>

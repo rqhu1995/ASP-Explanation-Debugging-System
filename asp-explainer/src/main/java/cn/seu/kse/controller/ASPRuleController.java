@@ -27,6 +27,7 @@ public class ASPRuleController {
   @ResponseBody
   public ResultInfo grounding(@RequestParam String aspCode,@RequestParam ArrayList<String> atom,@RequestParam String preBind) throws IOException {
     ResultInfo result = new ResultInfo();
+    //获取绑定
     HashMap bind = new HashMap<String,String>();
     if(preBind.length()!=0) {
       String[] prebindString = preBind.split("\\),");
@@ -37,11 +38,35 @@ public class ASPRuleController {
       }
     }
     //bind.put("penguin(X)","bird(X)");
+    //System.out.println(aspCode.replace(".",".\n").substring(0,aspCode.length()-1));
+    String aspCodeTemp = aspCode.replace(".",".\n");
+    aspCodeTemp = aspCodeTemp.substring(0,aspCodeTemp.length()-1);
+    //System.out.println(aspCodeTemp);
+    ArrayList<String>ansArray = new ArrayList<String>();
+    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
+    for (ASPRule aspRule : aspRules) {
+      aspPrgService.saveRule(aspRule);
+      String[] HeadID = aspRule.getHeadID().split(",");
+      for (String s : HeadID) {
+          LitNode literThroughID = new LitNode(
+                  Objects.requireNonNull(
+                          literalRepository.findById(Integer.parseInt(s)).orElse(null)));
+          //System.out.println(literThroughID.getLiteral());
+      }
+      String[] posBodyID  = aspRule.getPosBodyIDList().split(",");
+      String[] negBodyID = aspRule.getNegBodyIDList().split(",");
+      String[] var = aspRule.getVar().split(",");
+
+      //ansArray.add("ap(head("+aspRule.get+"),p("+posString+"),n("+negString+")):-"+rule.substring(rule.indexOf('-')+1)+".");
+    }
+    //System.out.println(aspRules);
+
+
     HashSet<String> aspProgram = new HashSet<String>();
     for(String retval: aspCode.split("\\.")){
       aspProgram.add(retval);
     }
-    ArrayList<String>ansArray = new ArrayList<String>();
+
     String temp = "";
     for(String rule : aspProgram){
        if(rule.contains(":-")){
@@ -93,7 +118,7 @@ public class ASPRuleController {
     temp+="#show ap/3.";
     temp+="#show blp/3.";
     temp+="#show bln/3.";
-    result.setStatus(1);
+    //result.setStatus(1);
     AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetAnswerSet(temp);
     String ansCode = "ap(head(fly(tux)),p(bird(tux)),n(neg_fly(tux))) ap(head(neg_fly(tweety)),p(penguin(tweety)),n) bln(head(fly(tweety)),p(bird(tweety)),n(neg_fly(tweety))) blp(head(neg_fly(tux)),p(penguin(tux)),n)";
     String[] ansRule  = ansCode.split(" ");
@@ -122,8 +147,8 @@ public class ASPRuleController {
       tempString+=".";
       answerAsp+=tempString;
     }
-
-    result.setData(answerAsp);
+    //result.setStatus(1);
+    //result.setData(answerSetResponse);
     return result;
   }
   /**
@@ -136,6 +161,13 @@ public class ASPRuleController {
   @ResponseBody
   public ResultInfo programStoring(@RequestBody String aspCode) throws IOException {
     ResultInfo result = new ResultInfo();
+    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
+    System.out.println(aspRules.size());
+    for (ASPRule aspRule : aspRules) {
+
+      aspPrgService.saveRule(aspRule);
+    }
+    System.out.println(aspCode);
     AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
     result.setStatus(1);
     result.setData(answerSetResponse);

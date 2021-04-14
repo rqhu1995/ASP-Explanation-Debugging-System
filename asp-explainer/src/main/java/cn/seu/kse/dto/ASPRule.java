@@ -17,6 +17,14 @@ public class ASPRule {
   @Column(name = "pb_list")
   private String posBodyIDList;
 
+  public void setVar(String var) {
+    this.var = var;
+  }
+
+  public String getVar() {
+    return var;
+  }
+
   @Column(name = "nb_list")
   private String negBodyIDList;
 
@@ -25,6 +33,9 @@ public class ASPRule {
 
   @Column(name = "ground")
   private boolean groundFlag;
+
+  @Column(name = "var")
+  private String var;
 
   public ASPRule() {}
 

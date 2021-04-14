@@ -15,12 +15,23 @@ public class ProgramVisitor extends ASPBaseVisitor {
 
   HashSet<String> positiveBodySet = new HashSet<>();
   HashSet<String> negativeBodySet = new HashSet<>();
+  HashSet<String> varSet = new HashSet<>();
   ASPRule aspRule = new ASPRule();
 
   public ASPRule getAspRule() {
     aspRule.setPosBodyIDList(this.positiveBodySet.toString().replace("[", "").replace("]", ""));
+    aspRule.setVar(this.varSet.toString().replace("[", "").replace("]", ""));
     aspRule.setNegBodyIDList(this.negativeBodySet.toString().replace("[", "").replace("]", ""));
     return aspRule;
+  }
+
+  @Override
+  public Object visitTerm(ASPParser.TermContext ctx) {
+    //System.out.println(ctx.VAR());
+    if(ctx.VAR() != null)
+    varSet.add(ctx.VAR().getText());
+    //System.out.println(ctx.VAR().getText());
+    return super.visitTerm(ctx);
   }
 
   @Override
