@@ -25,7 +25,7 @@ public class ASPRuleController {
 
   @GetMapping("/grounding")
   @ResponseBody
-  public ResultInfo grounding(@RequestParam String aspCode,@RequestParam ArrayList<String> atom,@RequestParam String preBind) throws IOException {
+  public ResultInfo grounding(@RequestParam String aspCode,@RequestParam String preBind) throws IOException {
     ResultInfo result = new ResultInfo();
     //获取绑定
     HashMap bind = new HashMap<String,String>();
