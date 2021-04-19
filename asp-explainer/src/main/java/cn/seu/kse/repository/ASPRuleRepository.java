@@ -16,4 +16,5 @@ public interface ASPRuleRepository extends JpaRepository<ASPRule, Integer> {
 
     @Query(value = "select r.headID from aspRule r where r.posBodyIDList is null and r.negBodyIDList is null")
     List<Literal> findAllFacts();
+
 }

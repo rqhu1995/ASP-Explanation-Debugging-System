@@ -19,9 +19,9 @@ public class ProgramVisitor extends ASPBaseVisitor {
   ASPRule aspRule = new ASPRule();
 
   public ASPRule getAspRule() {
-    aspRule.setPosBodyIDList(this.positiveBodySet.toString().replace("[", "").replace("]", ""));
-    aspRule.setVar(this.varSet.toString().replace("[", "").replace("]", ""));
-    aspRule.setNegBodyIDList(this.negativeBodySet.toString().replace("[", "").replace("]", ""));
+    aspRule.setPosBodyIDList(this.positiveBodySet.toString().replace("[", "").replace("]", "").replace(" ", ""));
+    aspRule.setVar(this.varSet.toString().replace("[", "").replace("]", "").replace(" ", ""));
+    aspRule.setNegBodyIDList(this.negativeBodySet.toString().replace("[", "").replace("]", "").replace(" ", ""));
     return aspRule;
   }
 

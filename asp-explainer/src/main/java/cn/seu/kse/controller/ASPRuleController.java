@@ -9,9 +9,11 @@ import cn.seu.kse.response.AnswerSetResponse;
 import cn.seu.kse.response.ResultInfo;
 import cn.seu.kse.service.ASPLiteralService;
 import cn.seu.kse.service.ASPPrgService;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.*;
 
@@ -26,9 +28,10 @@ public class ASPRuleController {
   @GetMapping("/grounding")
   @ResponseBody
   public ResultInfo grounding(@RequestParam String aspCode,@RequestParam String preBind) throws IOException {
+    aspPrgService.clearAll();
     ResultInfo result = new ResultInfo();
     //获取绑定
-    HashMap bind = new HashMap<String,String>();
+    HashMap<String,String> bind = new HashMap<String,String>();
     if(preBind.length()!=0) {
       String[] prebindString = preBind.split("\\),");
       for (String t : prebindString) {
@@ -41,117 +44,158 @@ public class ASPRuleController {
     //System.out.println(aspCode.replace(".",".\n").substring(0,aspCode.length()-1));
     String aspCodeTemp = aspCode.replace(".",".\n");
     aspCodeTemp = aspCodeTemp.substring(0,aspCodeTemp.length()-1);
+    String[] aspCodeTempString = aspCode.split("\\.");
+    HashSet<String> LiteralVar = new HashSet<String>();
+    for (String s : aspCodeTempString) {
+      System.out.println(s);
+      if(s.startsWith("var("))
+      LiteralVar.add(s);
+    }
    // System.out.println(aspCodeTemp);
     ArrayList<String>ansArray = new ArrayList<String>();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
+    HashSet<Integer> LiteralIdArray= new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
-      //System.out.println(aspRule.getVar());
-      if(aspRule.getVar() == "") continue;
-      aspPrgService.saveRule(aspRule);
+      if(aspRule.getVar().equals("")) continue;
+      //aspPrgService.saveRule(aspRule);
+
       String[] HeadID = aspRule.getHeadID().split(",");
       ArrayList<String> posBody = new ArrayList<String>();
       ArrayList<String> negBody = new ArrayList<String>();
-      String commonHead = "head(";
+      StringBuilder commonHead = new StringBuilder("head(");
       for (String s : HeadID) {
         s = s.trim();
-        if(s == "") continue;
+        if(s.equals("")) continue;
           LitNode literThroughID = new LitNode(
                   Objects.requireNonNull(
                           literalRepository.findById(Integer.parseInt(s)).orElse(null)));
           //System.out.println(literThroughID.getLiteral());
+          LiteralIdArray.add(Integer.parseInt(s));
           if(commonHead.charAt(commonHead.length()-1)=='(')
-            commonHead += literThroughID.getLiteral();
+            commonHead.append(literThroughID.getLiteral());
           else
-            commonHead += (","+literThroughID.getLiteral());
+            commonHead.append(",").append(literThroughID.getLiteral());
       }
-      commonHead += "),p(";
+      commonHead.append("),p(");
       String[] posBodyID  = aspRule.getPosBodyIDList().split(",");
       for (String s : posBodyID) {
         s = s.trim();
-        if(s == "") continue;
+        if(s.equals("")) continue;
 
           LitNode literThroughID = new LitNode(
                   Objects.requireNonNull(
                           literalRepository.findById(Integer.parseInt(s)).orElse(null)));
           //System.out.println(literThroughID.getLiteral());
+        LiteralIdArray.add(Integer.parseInt(s));
           posBody.add(literThroughID.getLiteral());
           if(commonHead.charAt(commonHead.length()-1)=='(')
-            commonHead += literThroughID.getLiteral();
+            commonHead.append(literThroughID.getLiteral());
           else
-            commonHead += (","+literThroughID.getLiteral());
+            commonHead.append(",").append(literThroughID.getLiteral());
       }
-      commonHead += "),n(";
+      commonHead.append("),n(");
       String[] negBodyID = aspRule.getNegBodyIDList().split(",");
       for (String s : negBodyID) {
         s= s.trim();
-        if(s == "") continue;
+        if(s.equals("")) continue;
         LitNode literThroughID = new LitNode(
                 Objects.requireNonNull(
                         literalRepository.findById(Integer.parseInt(s)).orElse(null)));
         //System.out.println(literThroughID.getLiteral());
+        LiteralIdArray.add(Integer.parseInt(s));
         negBody.add(literThroughID.getLiteral());
         if(commonHead.charAt(commonHead.length()-1)=='(')
-          commonHead += literThroughID.getLiteral();
+          commonHead.append(literThroughID.getLiteral());
         else
-          commonHead += (","+literThroughID.getLiteral());
+          commonHead.append(",").append(literThroughID.getLiteral());
       }
-      commonHead += "))";
+      commonHead.append("))");
       boolean flag = false;
-      String bodyAll = "ap(" + commonHead + ":-";
+      StringBuilder bodyAll = new StringBuilder("ap(" + commonHead + ":-");
       for (String s : posBody) {
           if(flag)
-            bodyAll += ("," + s);
+            bodyAll.append(",").append(s);
           else {
-            bodyAll += s;
+            bodyAll.append(s);
             flag = true;
           }
           String[] var = aspRule.getVar().split(",");
-          String blp = "blp(" + commonHead + ":-" + "not " + s;
+          StringBuilder blp = new StringBuilder("blp(" + commonHead + ":-" + "not " + s);
 
           if(bind.containsKey(s)) {
               if(bind.get(s).equals("(true)")) continue;
-              blp += ("," + bind.get(s));
+              blp.append(",").append(bind.get(s));
+            for (String s1 : var) {
+                  s1 = s1.trim();
+                 String subS = bind.get(s).substring(s.indexOf("("), s.indexOf(")"));
+                 if(subS.contains(s1)) continue;
+              blp.append(",var(").append(s1).append(")");
+
+            }
           }
           else{
               for (String s1 : var) {
-                  blp += (",var(" + s1 + ")");
+                s1 = s1.trim();
+                  blp.append(",var(").append(s1).append(")");
               }
           }
           ansArray.add(blp + ".");
       }
       for (String s : negBody) {
         if(flag)
-          bodyAll += (", not " + s);
+          bodyAll.append(", not ").append(s);
         else {
-          bodyAll += ("not " + s);
+          bodyAll.append("not ").append(s);
           flag = true;
         }
         String[] var = aspRule.getVar().split(",");
-        String bln = "bln(" + commonHead + ":-"  + s;
+        for (String s1 : var) {
+          s1 = s1.trim();
+          LiteralVar.add("var(" + s1 + ")");
+        }
+        StringBuilder bln = new StringBuilder("bln(" + commonHead + ":-" + s);
 
         if(bind.containsKey(s)) {
           if(bind.get(s).equals("(true)")) continue;
-          bln += ("," + bind.get(s));
+          bln.append(",").append(bind.get(s));
         }
         else{
           for (String s1 : var) {
-            bln += (",var(" + s1 + ")");
+            s1 = s1.trim();
+            bln.append(",var(").append(s1).append(")");
           }
         }
         ansArray.add(bln + ".");
       }
       ansArray.add(bodyAll+".");
     }
-    String AspProgram = "";
+    StringBuilder AspProgram = new StringBuilder();
     for(String s:ansArray){
-      AspProgram+=s;
+      AspProgram.append(s);
     }
     System.out.println(AspProgram);
-    AspProgram+=aspCode;
+    String[] aspCodeArray = aspCode.split("\\.");
+    for (String s : aspCodeArray) {
+       if(!s.contains(":-")){
+         s += ".";
+         AspProgram.append(s);
+       }
+    }
+    System.out.println(AspProgram);
+   AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
+    for (Integer integer : LiteralIdArray) {
+      literalRepository.deleteById(integer);
+    }
+    for (String s : LiteralVar) {
+      List<Literal> literThroughLit = literalRepository.findByLit(s);
+      for (Literal literal : literThroughLit) {
+         literalRepository.deleteById(literal.getId());
+      }
+    }
     //AspProgram+="#show ap/3.";
     //AspProgram+="#show blp/3.";
     //AspProgram+="#show bln/3.";
-    AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram);
+
    //HashSet<HashSet<Literal> > = answerSetResponse.getAnswerSet();
 
     /*HashSet<String> aspProgram = new HashSet<String>();
