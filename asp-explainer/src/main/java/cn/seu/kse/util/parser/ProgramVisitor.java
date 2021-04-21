@@ -38,7 +38,13 @@ public class ProgramVisitor extends ASPBaseVisitor {
   public Object visitHead(ASPParser.HeadContext ctx) {
     //    Literal head = new Literal();
     String headLit = ctx.getText();
-    int headID = aspLiteralService.saveLiteral(headLit);
+    boolean ground = true;
+    for (ASPParser.TermContext term: ctx.literal(0).atom().term()){
+      if(term.VAR() != null){
+        ground = false;
+      }
+    }
+    int headID = aspLiteralService.saveLiteral(headLit, ground);
     if (headID != -1) {
       aspRule.setHeadID(String.valueOf(headID));
     }
@@ -49,20 +55,32 @@ public class ProgramVisitor extends ASPBaseVisitor {
   public Object visitBody(ASPParser.BodyContext ctx) {
     String body;
     if (ctx != null) {
+      boolean ground = true;
       for (ASPParser.Extended_literalContext lext : ctx.extended_literal()) {
         if (lext.default_literal() != null) {
           body = lext.default_literal().literal().getText();
-          int savedLiteral = aspLiteralService.saveLiteral(body);
+          for (ASPParser.TermContext term: lext.default_literal().literal().atom().term()){
+            if(term.VAR() != null){
+              ground = false;
+            }
+          }
+          int savedLiteral = aspLiteralService.saveLiteral(body,ground);
           if (savedLiteral != -1) {
             this.negativeBodySet.add(String.valueOf(savedLiteral));
           }
         } else {
           body = lext.literal().getText();
-          int savedLiteral = aspLiteralService.saveLiteral(body);
+          ground = true;
+          for (ASPParser.TermContext term: lext.literal().atom().term()){
+            if(term.VAR() != null){
+              ground = false;
+            }
+          }
+          int savedLiteral = aspLiteralService.saveLiteral(body, ground);
           if (savedLiteral != -1) {
             this.positiveBodySet.add(String.valueOf(savedLiteral));
           }
-          aspLiteralService.saveLiteral(body);
+          aspLiteralService.saveLiteral(body, ground);
         }
       }
     }

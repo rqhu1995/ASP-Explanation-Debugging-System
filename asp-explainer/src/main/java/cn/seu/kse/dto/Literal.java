@@ -12,6 +12,17 @@ public class Literal {
   @Column(name = "lit")
   private String lit;
 
+  @Column(name = "ground")
+  private boolean ground;
+
+  public boolean isGround() {
+    return ground;
+  }
+
+  public void setGround(boolean ground) {
+    this.ground = ground;
+  }
+
   public Literal() {}
 
   public Literal(int id, String lit) {

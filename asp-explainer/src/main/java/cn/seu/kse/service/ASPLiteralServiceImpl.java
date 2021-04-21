@@ -12,12 +12,13 @@ public class ASPLiteralServiceImpl implements ASPLiteralService {
   @Autowired LiteralRepository literalRepository;
 
   @Override
-  public int saveLiteral(String literal) {
+  public int saveLiteral(String literal, boolean ground) {
     if (literalRepository.findByLit(literal).size() != 0) {
       return literalRepository.findByLit(literal).get(0).getId();
     } else {
       Literal litToSave = new Literal();
       litToSave.setLit(literal);
+      litToSave.setGround(ground);
       literalRepository.save(litToSave);
       return litToSave.getId();
     }

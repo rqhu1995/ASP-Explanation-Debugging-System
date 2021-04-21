@@ -8,8 +8,14 @@ public final class ShellExecutor {
   private static final String NEWLINE = System.getProperty("line.separator");
 
   public static String callShell(String command) throws IOException {
-    ProcessBuilder builder =
-        new ProcessBuilder("cmd", "/c", command).redirectErrorStream(true);
+    ProcessBuilder builder = null;
+    if (System.getProperty("os.name").contains("Windows")) {
+      builder = new ProcessBuilder("cmd", "/c", command).redirectErrorStream(true);
+    }
+    else{
+      builder = new ProcessBuilder("bash","-c", command).redirectErrorStream(true);
+
+    }
     Process process = builder.start(); // may throw IOException
     /* 此Process对象表示的子进程的退出值。 按照惯例，值0表示正常终止。
     // 调用此方法保证同步调用

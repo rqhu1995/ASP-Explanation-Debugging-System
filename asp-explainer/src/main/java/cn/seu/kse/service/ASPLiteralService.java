@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 @CrossOrigin
 public interface ASPLiteralService {
-  int saveLiteral(String literal);
+  int saveLiteral(String literal, boolean ground);
 
   Literal findByLiteral(String literal);
 }
