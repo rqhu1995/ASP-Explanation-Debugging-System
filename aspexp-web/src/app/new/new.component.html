@@ -1,92 +1,96 @@
 <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">ASP-Explainer</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">ASP-Explainer</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">程序编辑<span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown01" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              交互解释
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="/grounding">实例化交互</a>
-              <a class="dropdown-item" href="#">解释查看</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown02" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              交互调试
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Find here..." aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-      </div>
-    </nav>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">程序编辑<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown01" role="button" data-toggle="dropdown"
+             aria-haspopup="true" aria-expanded="false">
+            交互解释
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/grounding">实例化交互</a>
+            <a class="dropdown-item" href="#">解释查看</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown02" role="button" data-toggle="dropdown"
+             aria-haspopup="true" aria-expanded="false">
+            交互调试
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Something else here</a>
+          </div>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Find here..." aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </nav>
 </div>
 
 <div class="container h-100 mt-4">
 
-    <!-- the code editor -->
-    <div class="row mb-4">
-        <div class="col">
-            <div class="code-editor" #codeEditor></div>
-        </div>
+  <!-- the code editor -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="code-editor" #codeEditor></div>
     </div>
+  </div>
 
-    <!-- run, clear & beautify buttons -->
-    <div class="row mb-4 justify-content-center mx-4">
-        <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button"  class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="getCodeAndSolve()">
-                Solve with <br> Clingo
-            </button>
-        </div>
-        <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="selectAnswerSetAndAssumption()">
-              Explanation <br> Universe
-            </button>
-        </div>
-        <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
-            <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="clearAll()">
-                Clear <br> Record
-            </button>
-        </div>
+  <!-- run, clear & beautify buttons -->
+  <div class="row mb-4 justify-content-center mx-4">
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+      <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="getCodeAndSolve()">
+        Solve with <br> Clingo
+      </button>
     </div>
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+      <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2"
+              (click)="selectAnswerSetAndAssumption()">
+        Explanation <br> Universe
+      </button>
+    </div>
+    <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
+      <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="clearAll()">
+        Clear <br> Record
+      </button>
+    </div>
+  </div>
 
-    <!-- output box -->
-    <div *ngIf="!startExplanation" class="row mt-4">
-        <div class="col">
-            <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
-            <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
+  <!-- output box -->
+  <div *ngIf="!startExplanation" class="row mt-4">
+    <div class="col">
+      <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
+      <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
             </textarea>
-        </div>
     </div>
+  </div>
 
-  <div *ngIf="startExplanation" >
+  <div *ngIf="startExplanation">
     <h3>
       Choose the answer set for explanation:
     </h3>
     <nz-radio-group [ngModel]="0">
       <div *ngFor="let ans of answerSetList; let i = index">
-      <label nz-radio [nzValue]="i">
-        Answer {{i+1}} : {{answerSetDisplay(ans)}}
-      </label>
+        <label nz-radio [nzValue]="i">
+          Answer {{i + 1}} : {{answerSetDisplay(ans)}}
+        </label>
       </div>
     </nz-radio-group>
   </div>
