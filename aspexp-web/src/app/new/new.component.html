@@ -86,7 +86,7 @@
     <h3>
       Choose the answer set for explanation:
     </h3>
-    <nz-radio-group [ngModel]="0">
+    <nz-radio-group [ngModel]=selected>
       <div *ngFor="let ans of answerSetList; let i = index">
         <label nz-radio [nzValue]="i">
           Answer {{i + 1}} : {{answerSetDisplay(ans)}}

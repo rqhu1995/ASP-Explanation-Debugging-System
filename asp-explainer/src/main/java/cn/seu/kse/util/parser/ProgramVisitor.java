@@ -59,6 +59,7 @@ public class ProgramVisitor extends ASPBaseVisitor {
       for (ASPParser.Extended_literalContext lext : ctx.extended_literal()) {
         if (lext.default_literal() != null) {
           body = lext.default_literal().literal().getText();
+          System.out.println("！！"+body);
           for (ASPParser.TermContext term: lext.default_literal().literal().atom().term()){
             if(term.VAR() != null){
               ground = false;
@@ -70,6 +71,7 @@ public class ProgramVisitor extends ASPBaseVisitor {
           }
         } else {
           body = lext.literal().getText();
+          System.out.println("！！"+body);
           ground = true;
           for (ASPParser.TermContext term: lext.literal().atom().term()){
             if(term.VAR() != null){

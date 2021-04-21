@@ -26,6 +26,7 @@ export class NewComponent implements OnInit {
   answerSetList: any = [];
   startExplanation: boolean = false;
   selectedAnswerSet: any;
+  selected: any;
 
   constructor(private codeSender: CodeSendService) {
     this.outputBox = "";
@@ -88,10 +89,12 @@ export class NewComponent implements OnInit {
 
   selectAnswerSetAndAssumption() {
     this.answerSetList = [];
+    this.selected = 0;
     for (const answerSetElement of this.answerSet) {
       this.answerSetList.push(answerSetElement);
     }
     this.startExplanation = true;
+
   }
 
   answerSetDisplay(ans: any) {
