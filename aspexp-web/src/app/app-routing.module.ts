@@ -6,7 +6,7 @@ import { GroundingComponent } from './grounding/grounding.component';
 const routes: Routes = [
   { path: 'homePage', component: NewComponent },
   { path: 'grounding', component: GroundingComponent},
-  { path: '', redirectTo: '/homePage', pathMatch: 'full' }
+  { path: '', redirectTo: 'NewComponent', pathMatch: 'full' }
 ];
 
 @NgModule({

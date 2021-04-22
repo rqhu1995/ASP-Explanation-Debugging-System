@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 
 @Injectable({
@@ -18,6 +18,15 @@ export class CodeSendService {
 
   clearAll(): Observable<any> {
     return this.http.get<any>("http://localhost:8080/clearall");
+  }
+
+  getLiteral(): Observable<any> {
+    return this.http.get<any>("http://localhost:8080/getLiterals");
+  }
+
+  grounding(data: any): Observable<any> {
+    let params = new HttpParams().set("aspCode",data.aspCode).set("preBind", data.preBind); //Create new HttpParams
+    return this.http.get<any>("http://localhost:8080/grounding", { headers: this.headers, params: params });
   }
 
 }

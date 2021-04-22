@@ -13,8 +13,9 @@ public interface ASPPrgService {
 
   void saveRule(ASPRule aspRule);
 
-  AnswerSetResponse solveAndGetAnswerSet(String aspCode) throws IOException;
+  HashSet<HashSet<String>> solveAndGetAnswerSet(String aspCode) throws IOException;
 
   AnswerSetResponse solveAndGetGrounding(String aspCode) throws  IOException;
+
   void clearAll();
 }
