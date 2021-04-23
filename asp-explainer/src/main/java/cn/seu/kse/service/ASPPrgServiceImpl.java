@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 
 @CrossOrigin
@@ -29,6 +30,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   @Autowired LiteralRepository literalRepository;
 
   @Autowired ASPRuleRepository aspRuleRepository;
+
   @Autowired ASPPrgService aspPrgService;
   @Override
   public HashSet<ASPRule> programParser(String aspProgram) {
@@ -40,12 +42,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
         continue;
       }
       ASPRule aspRule = nonGroundRuleParser(rule);
-/*      if(aspRule.getPosBodyIDList().length() == 0) {
-        aspRule.setPosBodyIDList(null);
-      }
-      if(aspRule.getNegBodyIDList().length() == 0) {
-        aspRule.setNegBodyIDList(null);
-      }*/
       programRules.add(aspRule);
     }
     return programRules;
@@ -70,15 +66,15 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   }
   @Override
   public AnswerSetResponse solveAndGetGrounding(String aspCode) throws  IOException{
-    String answerString =
-            ShellExecutor.callShell(
-                    "echo "
-                            + aspCode.replace("\n", " ")
-                            + " | clingo 0");
-    System.out.println("echo "
-            + aspCode.replace("\n", " ")
-            + " | clingo 0");
-    System.out.println("String + " + answerString);
+    String answerString;
+    if (System.getProperty("os.name").contains("Windows")) {
+      answerString =
+          ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
+    }else{
+      answerString =
+              ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+    }
+
     AnswerSetResponse answerSetResponse = new AnswerSetResponse();
     if (answerString.contains("UNSAT")) {
       answerSetResponse.setSatisfiable(false);
@@ -94,31 +90,11 @@ public class ASPPrgServiceImpl implements ASPPrgService {
           if (line.equals("\n")) {
             answerSet.add(new Literal());
           }
-          /*
-          String parseString = "";
-          for (String ansLit : singleAnswer) {
-            if (ansLit.startsWith("ap") || ansLit.startsWith("blp") || ansLit.startsWith("bln")) {
-                continue;
-            }
-            else{
-              if(aspLiteralService.findByLiteral(ansLit) == null){
-                parseString += (ansLit + '.' + '\n' );
-              }
-            }
-          }
-          //System.out.println(111);
-          if(parseString.length() > 0 && parseString.charAt(parseString.length()-1) == '\n'){
-            parseString = parseString.substring(0,Math.max(0,parseString.length()-1));
-          }
-          aspPrgService.programParser(parseString);
-*/
           for (String ansLit : singleAnswer) {
             if(ansLit.startsWith("ap")||ansLit.startsWith("blp")||ansLit.startsWith("bln")){
-              //System.out.println(ansLit+";;;;");
               int headS = ansLit.indexOf("d(") + 2;
               int headN = ansLit.indexOf("))",headS) + 1;
               String headString = ansLit.substring(headS,headN);
-              //System.out.println(headString);
               String []head = headString.split("\\),");
               StringBuilder aspString = new StringBuilder(); boolean flag = false;
               for (String s : head) {
@@ -129,7 +105,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                   aspPrgService.programParser(temp);
                 }
                Literal litFound = aspLiteralService.findByLiteral(s);
-                //System.out.println(litFound.getLit());
                 if(flag) aspString.append(",").append(s);
                 else{
                   flag = true; aspString.append(s);
@@ -142,7 +117,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
               if(ansLit.charAt(pS + 1) == '('){
                 pN = ansLit.indexOf(")),n", pS);
                 String posString = ansLit.substring(pS+2, pN+1);
-                //System.out.println(posString);
                 String []pos = posString.split("\\),");
                 for (String po : pos) {
                   if(po.charAt(po.length()-1) != ')') po += ')';
@@ -152,7 +126,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                     aspPrgService.programParser(temp);
                   }
                   Literal litFound = aspLiteralService.findByLiteral(po);
-                  //System.out.println(litFound.getLit());
                   if(flag) aspString.append(",").append(po);
                   else{
                     flag = true; aspString.append(po);
@@ -161,15 +134,12 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                 }
               }
               int nS = ansLit.indexOf("n", pN);
-             // System.out.println(nS);
               if(ansLit.charAt(nS+1) == '('){
                 int nN = ansLit.indexOf("))",nS);
                 String negString = ansLit.substring(nS+2,nN+1);
-               // System.out.println(negString);
                 String []neg = negString.split("\\),");
                 for (String s : neg) {
                   if(s.charAt(s.length()-1) != ')') s += ')';
-                 // System.out.println(s);
                   if(aspLiteralService.findByLiteral(s)== null ) {
                     if(s.length() == 0) continue;
                     String temp = s + ".";
@@ -180,13 +150,11 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                   else{
                     flag = true; aspString.append(s);
                   }
-                  //System.out.println(litFound.getLit());
                   answerSet.add(litFound);
                 }
 
                 }
               aspString.append(".");
-              System.out.println(aspString);
               HashSet<ASPRule> aspRules = aspPrgService.programParser(aspString.toString());
               for (ASPRule aspRule : aspRules) {
                 aspPrgService.saveRule(aspRule);
@@ -197,11 +165,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
               answerSet.add(litFound);
             }
           }
-          System.out.println("123");
-          for (Literal literal : answerSet) {
-            System.out.println(literal.getId());
-          }
-          System.out.println("123");
           answerSetResponse.addAnswerSet(answerSet);
           meetAnswerFlag = false;
         }
@@ -210,45 +173,35 @@ public class ASPPrgServiceImpl implements ASPPrgService {
         }
       }
     }
-    System.out.println(answerSetResponse.getAnswerSet());
     return answerSetResponse;
   }
 
   @Override
-  public AnswerSetResponse solveAndGetAnswerSet(String aspCode) throws IOException {
-   // System.out.println("123333333");
-    String answerString =
-        ShellExecutor.callShell(
-            "echo "
-                + aspCode.replace("\n", " ")
-                + " | clingo 0");
-//    System.out.println(
-//            "echo "
-//                + aspCode.replace(System.getProperty("\n"), " ")
-//                + " | clingo 0");
-    //System.out.print(2334);
-    //System.out.println(answerString.length());
-    System.out.println("String + " + answerString);
-    AnswerSetResponse answerSetResponse = new AnswerSetResponse();
+  public HashSet<HashSet<String>> solveAndGetAnswerSet(String aspCode) throws IOException {
+    String answerString;
+    if (System.getProperty("os.name").contains("Windows")) {
+      answerString =
+              ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
+    }else{
+      answerString =
+              ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+    }
+    System.out.println(answerString);
+    HashSet<HashSet<String>> answerSets = new HashSet<>();
     if (answerString.contains("UNSAT")) {
-      answerSetResponse.setSatisfiable(false);
-      answerSetResponse.setAnswerSet(null);
+      return null;
     } else {
-      answerSetResponse.setSatisfiable(true);
       String[] outputList = answerString.split(System.getProperty("line.separator"));
       boolean meetAnswerFlag = false;
       for (String line : outputList) {
         if (meetAnswerFlag) {
-          HashSet<Literal> answerSet = new HashSet<>();
+          HashSet<String> answerSet = new HashSet<>();
           String[] singleAnswer = line.split(" ");
           if (line.equals("\n")) {
-            answerSet.add(new Literal());
+            answerSet.add("");
           }
-          for (String ansLit : singleAnswer) {
-            Literal litFound = aspLiteralService.findByLiteral(ansLit);
-            answerSet.add(litFound);
-          }
-          answerSetResponse.addAnswerSet(answerSet);
+          answerSet.addAll(Arrays.asList(singleAnswer));
+          answerSets.add(answerSet);
           meetAnswerFlag = false;
         }
         if (line.startsWith("Answer: ")) {
@@ -256,8 +209,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
         }
       }
     }
-    System.out.println(answerSetResponse.getAnswerSet());
-    return answerSetResponse;
+    return answerSets;
   }
 
   @Override

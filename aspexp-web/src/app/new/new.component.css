@@ -16,7 +16,10 @@ div.label-box {
 
 .btn-beautify {
     color: #ffffff;
-    background-color: #e83e8c;
+    background-color: #4b6cf6;
+}
+nz-select {
+  width: 100%;
 }
 
 select.languages-select {

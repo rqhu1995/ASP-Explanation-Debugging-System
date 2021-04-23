@@ -8,7 +8,7 @@ import {CodeSendService} from './code-send.service';
 import {Aspprogram} from './object/aspprogram';
 import { GroundingComponent } from './grounding/grounding.component';
 import { AppRoutingModule } from './app-routing.module';
-import {NzRadioModule} from "ng-zorro-antd";
+import {NzCheckboxModule, NzRadioModule, NzSelectModule, NzTableModule} from "ng-zorro-antd";
 import {FormsModule} from "@angular/forms";
 
 @NgModule({
@@ -23,7 +23,10 @@ import {FormsModule} from "@angular/forms";
     HttpClientModule,
     AppRoutingModule,
     NzRadioModule,
-    FormsModule
+    FormsModule,
+    NzCheckboxModule,
+    NzTableModule,
+    NzSelectModule
   ],
   providers: [CodeSendService, Aspprogram],
   bootstrap: [AppComponent]

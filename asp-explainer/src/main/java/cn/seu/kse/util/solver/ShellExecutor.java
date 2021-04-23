@@ -13,20 +13,9 @@ public final class ShellExecutor {
       builder = new ProcessBuilder("cmd", "/c", command).redirectErrorStream(true);
     }
     else{
-      builder = new ProcessBuilder("bash","-c", command).redirectErrorStream(true);
-
+      builder = new ProcessBuilder("zsh", "-c", command).redirectErrorStream(true);
     }
     Process process = builder.start(); // may throw IOException
-    /* 此Process对象表示的子进程的退出值。 按照惯例，值0表示正常终止。
-    // 调用此方法保证同步调用
-    int waitFor = 0;
-    try {
-      waitFor = process.waitFor();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    return waitFor >= 0; */
-
     StringBuilder result = new StringBuilder(80);
     try (BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
       while (true) {

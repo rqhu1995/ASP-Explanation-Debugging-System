@@ -46,24 +46,24 @@
 
 <div class="container h-100 mt-4">
 
-  <!-- the code editor -->
+  <!-- 代码框 -->
   <div class="row mb-4">
     <div class="col">
       <div class="code-editor" #codeEditor></div>
     </div>
   </div>
 
-  <!-- run, clear & beautify buttons -->
+  <!-- 按钮列表 -->
   <div class="row mb-4 justify-content-center mx-4">
     <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
       <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="getCodeAndSolve()">
-        Solve with <br> Clingo
+        使用Clingo <br> 求解
       </button>
     </div>
     <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
       <button type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2"
-              (click)="selectAnswerSetAndAssumption()">
-        Explanation <br> Universe
+              (click)="interactiveGrounding()">
+        交互式 <br> 实例化
       </button>
     </div>
     <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
@@ -73,14 +73,67 @@
     </div>
   </div>
 
-  <!-- output box -->
-  <div *ngIf="!startExplanation" class="row mt-4">
+  <!-- 输出框 -->
+  <div *ngIf="!startExplanation && !startGrounding" class="row mt-4">
     <div class="col">
       <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
       <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
             </textarea>
     </div>
   </div>
+
+  <!-- 交互实例化框 -->
+  <div *ngIf="startGrounding">
+    <div class="row mt-4">
+      <p>勾选默认为真的文字</p>
+    </div>
+    <div style="border-bottom: 1px solid rgb(233, 233, 233);" class="row mt-4">
+      <label nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
+             [nzIndeterminate]="indeterminate">
+        全部选择
+      </label>
+    </div>
+    <br>
+    <div class="row mt-8">
+      <div class="col-6 col-lg-4 col-md-6 col-sm-8 w-75">
+      <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+      </div>
+      <div class="col-6 col-lg-4 col-md-6 col-sm-8 w-75">
+      <button *ngIf="needBinding" type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="goBinding()">
+        绑定变量
+      </button>
+      </div>
+    </div>
+
+    <div *ngIf="allTrueSelected && needBinding" class="row mt-4">
+      <p>绑定为真的变量</p>
+    </div>
+
+    <div>
+      <nz-table *ngIf="allTrueSelected && needBinding" #basicTable [nzData]="literals">
+        <thead>
+        <tr>
+          <th>文字</th>
+          <th>变量<br>绑定</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let lit of literals; let i = index">
+          <td>{{lit}}</td>
+          <td>
+            <nz-select nzMode="multiple" nzPlaceHolder="选择绑定的变量..." [(ngModel)]="selectedLiterals[i]">
+              <nz-option *ngFor="let option of selectable_literals" [nzLabel]="option" [nzValue]="option" [nzHide]="!isNotSelected(option,i)"></nz-option>
+            </nz-select>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+    <button *ngIf="allTrueSelected && needBinding" type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="submitBinding()">
+      确认绑定
+    </button>
+  </div>
+
 
   <div *ngIf="startExplanation">
     <h3>
