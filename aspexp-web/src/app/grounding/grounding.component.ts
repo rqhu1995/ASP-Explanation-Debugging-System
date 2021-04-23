@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {CodeSendService} from "../code-send.service";
+import {GroundingService} from "../grounding.service";
 
 @Component({
   selector: 'app-grounding',
@@ -6,8 +8,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./grounding.component.css']
 })
 export class GroundingComponent implements OnInit {
+  groundCodeBox: any;
 
-  constructor() { }
+  constructor(private groundCode: GroundingService) {
+    this.groundCodeBox = groundCode.getGroundedCode();
+  }
 
   ngOnInit() {
   }

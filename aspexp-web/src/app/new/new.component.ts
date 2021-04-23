@@ -1,10 +1,9 @@
-import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CodeSendService} from '../code-send.service';
-import {Aspprogram} from '../object/aspprogram';
-import {Router} from "@angular/router";
+import {GroundingService} from "../grounding.service";
 
 const THEME = 'ace/theme/textmate';
 const LANG = 'ace/mode/gringo';
@@ -39,7 +38,7 @@ export class NewComponent implements OnInit {
   selectedLiterals: string[][] = [];
   allTrueSelected: boolean = false;
   needBinding = false;
-  constructor(private codeSender: CodeSendService, private router: Router) {
+  constructor(private codeSender: CodeSendService, private ground: GroundingService) {
     this.outputBox = "";
     this.checkOptionsOne = [];
   }
@@ -276,8 +275,9 @@ export class NewComponent implements OnInit {
     this.codeSender.grounding({aspCode: codes, preBind: preBind}).subscribe(
       res => {
         console.log(res);
+        this.ground.setGroundedCode(res.data.groundCode);
+        window.open("http://localhost:4200/grounding", "_blank");
       }
     );
-    // this.router.navigate(['/grounding']);
   }
 }
