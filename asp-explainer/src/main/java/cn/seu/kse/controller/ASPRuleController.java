@@ -38,7 +38,7 @@ public class ASPRuleController {
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCode = groundingResponse.getAspCode().replace(System.getProperty("line.separator")," ");
-        System.out.println("aspCode:"+aspCode);
+
     String aspCodeTemp = aspCode.replace(".", ".\n");
     aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
     String[] aspCodeTempString = aspCode.split("\\.");
@@ -48,6 +48,10 @@ public class ASPRuleController {
     }
     ArrayList<String> ansArray = new ArrayList<String>();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
+        for (ASPRule aspRule : aspRules) {
+          if(aspRule.getConstant() == "") continue;
+            LiteralVar.add("var(" + aspRule.getConstant() + ").");
+        }
     HashSet<Integer> LiteralIdArray = new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
       if (aspRule.getVar().equals("")) continue;
@@ -166,6 +170,9 @@ public class ASPRuleController {
         AspProgram.append(s);
       }
     }
+        for (String s : LiteralVar) {
+          AspProgram.append(s);
+        }
 
     GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(originalAnswerSetResponse);
