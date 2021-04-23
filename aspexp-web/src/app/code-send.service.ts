@@ -13,20 +13,24 @@ export class CodeSendService {
   private headers = new HttpHeaders({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin' : '*'});
 
   sendCode(data: any): Observable<any> {
-    return this.http.post<any>("http://localhost:8080/parseprogram", data, { headers: this.headers });
+    return this.http.post<any>("http://localhost:8888/parseprogram", data, { headers: this.headers });
   }
 
   clearAll(): Observable<any> {
-    return this.http.get<any>("http://localhost:8080/clearall");
+    return this.http.get<any>("http://localhost:8888/clearall");
   }
 
+  getExplanation(data: any): Observable<any> {
+    console.log(111);
+    return this.http.get<any>(data);
+  }
   getLiteral(): Observable<any> {
-    return this.http.get<any>("http://localhost:8080/getLiterals");
+    return this.http.get<any>("http://localhost:8888/getLiterals");
   }
 
   grounding(data: any): Observable<any> {
     let params = new HttpParams().set("aspCode",data.aspCode).set("preBind", data.preBind); //Create new HttpParams
-    return this.http.get<any>("http://localhost:8080/grounding", { headers: this.headers, params: params });
+    return this.http.get<any>("http://localhost:8888/grounding", { headers: this.headers, params: params });
   }
 
 }

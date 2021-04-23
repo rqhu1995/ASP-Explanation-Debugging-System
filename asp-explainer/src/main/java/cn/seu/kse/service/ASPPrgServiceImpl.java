@@ -178,11 +178,14 @@ public class ASPPrgServiceImpl implements ASPPrgService {
 
   @Override
   public HashSet<HashSet<String>> solveAndGetAnswerSet(String aspCode) throws IOException {
-    String answerString =
-        ShellExecutor.callShell(
-            "echo \""
-                + aspCode.replace("\n", " ")
-                + "\" | clingo 0");
+    String answerString;
+    if (System.getProperty("os.name").contains("Windows")) {
+      answerString =
+              ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
+    }else{
+      answerString =
+              ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+    }
     System.out.println(answerString);
     HashSet<HashSet<String>> answerSets = new HashSet<>();
     if (answerString.contains("UNSAT")) {

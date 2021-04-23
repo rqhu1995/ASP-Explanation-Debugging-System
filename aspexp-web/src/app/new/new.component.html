@@ -139,13 +139,22 @@
     <h3>
       Choose the answer set for explanation:
     </h3>
-    <nz-radio-group [ngModel]=selected>
+
+    <nz-radio-group [(ngModel)]=selected>
       <div *ngFor="let ans of answerSetList; let i = index">
         <label nz-radio [nzValue]="i">
           Answer {{i + 1}} : {{answerSetDisplay(ans)}}
         </label>
       </div>
     </nz-radio-group>
+
+    <!--
+    <nz-radio-group [(ngModel)]=selected>
+      <label nz-radio nzValue="A">Option A</label>
+      <label nz-radio nzValue="B">Option B</label>
+      <label nz-radio nzValue="C">Option C</label>
+    </nz-radio-group>
+    -->
   </div>
 
   <script src="https://d3js.org/d3.v4.min.js"></script>

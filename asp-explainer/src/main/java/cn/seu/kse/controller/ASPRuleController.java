@@ -6,6 +6,7 @@ import cn.seu.kse.graph.*;
 import cn.seu.kse.repository.ASPRuleRepository;
 import cn.seu.kse.repository.LiteralRepository;
 import cn.seu.kse.response.AnswerSetResponse;
+import cn.seu.kse.response.GroundingResponse;
 import cn.seu.kse.response.ResultInfo;
 import cn.seu.kse.service.ASPLiteralService;
 import cn.seu.kse.service.ASPPrgService;
@@ -25,22 +26,15 @@ public class ASPRuleController {
   @Autowired ASPPrgService aspPrgService;
   @Autowired ASPLiteralService aspLiteralService;
 
-  @GetMapping("/grounding")
+  @PostMapping("/grounding")
   @ResponseBody
-  public ResultInfo grounding(@RequestParam String aspCode, @RequestParam String preBind)
+  public ResultInfo grounding(@RequestBody GroundingResponse groundingResponse)
+//          , @RequestBody  HashMap<String, HashSet<String>> preBind)
       throws IOException {
-    aspPrgService.clearAll();
+     aspPrgService.clearAll();
     ResultInfo result = new ResultInfo();
     // 获取绑定
-    HashMap<String, String> bind = new HashMap<String, String>();
-    if (preBind.length() != 0) {
-      String[] prebindString = preBind.split("\\),");
-      for (String t : prebindString) {
-        String[] temp = t.split(":");
-        if (temp[1].charAt(temp[1].length() - 1) != ')') temp[1] += ")";
-        bind.put(temp[0], temp[1]);
-      }
-    }
+    HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCodeTemp = aspCode.replace(".", ".\n");
     aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
     String[] aspCodeTempString = aspCode.split("\\.");
@@ -181,6 +175,10 @@ public class ASPRuleController {
     result.setStatus(1);
     result.setData(answerSetResponse);
     return result;
+    //System.out.println(groundingResponse.getAspCode());
+   // System.out.println(groundingResponse.getPreBind().get("bid(M,P,N)"));
+//    System.out.println(preBind);
+    return null;
   }
   /**
    * 获取ASP程序，解析存放每条rule和每个lit
