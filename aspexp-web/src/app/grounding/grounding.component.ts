@@ -9,12 +9,20 @@ import {GroundingService} from "../grounding.service";
 })
 export class GroundingComponent implements OnInit {
   groundCodeBox: any;
+  answerSetBox: any;
 
   constructor(private groundCode: GroundingService) {
-    this.groundCodeBox = groundCode.getGroundedCode();
   }
 
   ngOnInit() {
+    console.log(this.groundCode.getGroundedCode());
+    this.groundCodeBox = this.groundCode.getGroundedCode().split(".").join(".\n\n");
+    if(this.groundCode.getAnswerSet() == undefined){
+      this.answerSetBox = "不一致";
+    }else {
+      this.answerSetBox = this.groundCode.getAnswerSet();
+    }
+
   }
 
 }

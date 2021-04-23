@@ -277,6 +277,8 @@ export class NewComponent implements OnInit {
       res => {
         console.log(res);
         this.ground.setGroundedCode(res.data.groundCode);
+        this.ground.setAnswerSet(res.data.answerSet);
+
         // window.open("http://localhost:4200/grounding", "_blank");
         this.router.navigateByUrl('/grounding');
       }
