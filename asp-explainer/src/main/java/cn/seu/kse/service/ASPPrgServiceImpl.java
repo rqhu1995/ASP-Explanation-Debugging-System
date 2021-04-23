@@ -88,6 +88,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
       for (String line : outputList) {
         if (meetAnswerFlag) {
           HashSet<Literal> answerSet = new HashSet<>();
+          String GroundCode = "";
           String[] singleAnswer = line.split(" ");
           if (line.equals("\n")) {
             answerSet.add(new Literal());
@@ -107,7 +108,10 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                   aspPrgService.programParser(temp);
                 }
                Literal litFound = aspLiteralService.findByLiteral(s);
-                if(flag) aspString.append(",").append(s);
+
+                if(flag) {
+                  aspString.append(",").append(s);
+                }
                 else{
                   flag = true; aspString.append(s);
                 }
@@ -157,6 +161,9 @@ public class ASPPrgServiceImpl implements ASPPrgService {
 
                 }
               aspString.append(".");
+              GroundCode += aspString.toString();
+              System.out.println("GroundCode"+GroundCode);
+              answerSetResponse.setGroundCode(GroundCode);
               HashSet<ASPRule> aspRules = aspPrgService.programParser(aspString.toString());
               for (ASPRule aspRule : aspRules) {
                 aspPrgService.saveRule(aspRule);
@@ -167,7 +174,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
               answerSet.add(litFound);
             }
           }
-          answerSetResponse.addAnswerSet(answerSet);
+          //answerSetResponse.addAnswerSet(answerSet);
           meetAnswerFlag = false;
         }
         if (line.startsWith("Answer: ")) {
