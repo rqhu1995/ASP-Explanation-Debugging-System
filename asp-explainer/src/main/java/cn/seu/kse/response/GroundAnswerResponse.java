@@ -11,7 +11,7 @@ public class GroundAnswerResponse {
         return groundCode;
     }
 
-    HashSet<HashSet<Literal>> answerSet;
+    HashSet<HashSet<String>> answerSet;
     String groundCode;
     public boolean isSatisfiable() {
         return satisfiable;
@@ -21,11 +21,11 @@ public class GroundAnswerResponse {
         this.satisfiable = satisfiable;
     }
 
-    public HashSet<HashSet<Literal>> getAnswerSet() {
+    public HashSet<HashSet<String>> getAnswerSet() {
         return answerSet;
     }
 
-    public void setAnswerSet(HashSet<HashSet<Literal>> answerSet) {
+    public void setAnswerSet(HashSet<HashSet<String>> answerSet) {
         this.answerSet = answerSet;
     }
 
@@ -33,7 +33,7 @@ public class GroundAnswerResponse {
         this.groundCode = groundCode;
     }
 
-    public void addAnswerSet(HashSet<Literal> answerSet) {
+    public void addAnswerSet(HashSet<String> answerSet) {
         if (this.answerSet == null) {
             this.answerSet = new HashSet<>();
         }

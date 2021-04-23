@@ -34,6 +34,7 @@ public class ASPRuleController {
       throws IOException {
      aspPrgService.clearAll();
     ResultInfo result = new ResultInfo();
+        HashSet<HashSet<String>> originalAnswerSetResponse = aspPrgService.solveAndGetAnswerSet(groundingResponse.getAspCode());
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCode = groundingResponse.getAspCode().replace(System.getProperty("line.separator")," ");
@@ -159,14 +160,15 @@ public class ASPRuleController {
     }
     String[] aspCodeArray = aspCode.split("\\.");
     for (String s : aspCodeArray) {
-      if (!s.contains(":-")&&!s.equals( " ")) {
+      if (!s.contains(":-") && !s.equals( " ")) {
         //System.out.println("s"+s);
         s += ".";
         AspProgram.append(s);
       }
     }
 
-        GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
+    GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
+    answerSetResponse.setAnswerSet(originalAnswerSetResponse);
     for (Integer integer : LiteralIdArray) {
       literalRepository.deleteById(integer);
     }
