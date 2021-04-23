@@ -4,6 +4,7 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CodeSendService} from '../code-send.service';
 import {Aspprogram} from '../object/aspprogram';
+import {Router} from "@angular/router";
 
 const THEME = 'ace/theme/textmate';
 const LANG = 'ace/mode/gringo';
@@ -38,7 +39,7 @@ export class NewComponent implements OnInit {
   selectedLiterals: string[][] = [];
   allTrueSelected: boolean = false;
   needBinding = false;
-  constructor(private codeSender: CodeSendService) {
+  constructor(private codeSender: CodeSendService, private router: Router) {
     this.outputBox = "";
     this.checkOptionsOne = [];
   }
@@ -276,7 +277,7 @@ export class NewComponent implements OnInit {
       res => {
         console.log(res);
       }
-    )
-
+    );
+    // this.router.navigate(['/grounding']);
   }
 }

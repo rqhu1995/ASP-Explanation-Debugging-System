@@ -21,7 +21,6 @@ export class CodeSendService {
   }
 
   getExplanation(data: any): Observable<any> {
-    console.log(111);
     return this.http.get<any>(data);
   }
   getLiteral(): Observable<any> {
