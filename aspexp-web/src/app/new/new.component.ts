@@ -273,7 +273,7 @@ export class NewComponent implements OnInit {
     }
     const codes = this.codeEditor.getValue().toString();
     console.log({code: codes, preBind: preBind});
-    this.codeSender.grounding({code: codes, preBind: preBind}).subscribe(
+    this.codeSender.grounding({aspCode: codes, preBind: preBind}).subscribe(
       res => {
         console.log(res);
       }

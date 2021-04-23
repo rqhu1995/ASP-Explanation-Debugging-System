@@ -28,8 +28,8 @@ export class CodeSendService {
   }
 
   grounding(data: any): Observable<any> {
-    let params = new HttpParams().set("aspCode",data.aspCode).set("preBind", data.preBind); //Create new HttpParams
-    return this.http.get<any>("http://localhost:8888/grounding", { headers: this.headers, params: params });
+    // let params = new HttpParams().set("aspCode",data.aspCode).set("preBind", data.preBind); //Create new HttpParams
+    return this.http.post<any>("http://localhost:8888/grounding", data,{ headers: this.headers });
   }
 
 }
