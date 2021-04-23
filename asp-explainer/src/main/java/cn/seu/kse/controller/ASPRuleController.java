@@ -6,6 +6,7 @@ import cn.seu.kse.graph.*;
 import cn.seu.kse.repository.ASPRuleRepository;
 import cn.seu.kse.repository.LiteralRepository;
 import cn.seu.kse.response.AnswerSetResponse;
+import cn.seu.kse.response.GroundAnswerResponse;
 import cn.seu.kse.response.GroundingResponse;
 import cn.seu.kse.response.ResultInfo;
 import cn.seu.kse.service.ASPLiteralService;
@@ -35,6 +36,8 @@ public class ASPRuleController {
     ResultInfo result = new ResultInfo();
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
+    String aspCode = groundingResponse.getAspCode().replace(System.getProperty("line.separator")," ");
+        System.out.println("aspCode:"+aspCode);
     String aspCodeTemp = aspCode.replace(".", ".\n");
     aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
     String[] aspCodeTempString = aspCode.split("\\.");
@@ -47,8 +50,6 @@ public class ASPRuleController {
     HashSet<Integer> LiteralIdArray = new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
       if (aspRule.getVar().equals("")) continue;
-      // aspPrgService.saveRule(aspRule);
-
       String[] HeadID = aspRule.getHeadID().split(",");
       ArrayList<String> posBody = new ArrayList<String>();
       ArrayList<String> negBody = new ArrayList<String>();
@@ -70,7 +71,6 @@ public class ASPRuleController {
       for (String s : posBodyID) {
         s = s.trim();
         if (s.equals("")) continue;
-
         LitNode literThroughID =
             new LitNode(
                 Objects.requireNonNull(
@@ -109,12 +109,22 @@ public class ASPRuleController {
         StringBuilder blp = new StringBuilder("blp(" + commonHead + ":-" + "not " + s);
 
         if (bind.containsKey(s)) {
-          if (bind.get(s).equals("(true)")) continue;
-          blp.append(",").append(bind.get(s));
+          HashSet<String> bindSet = bind.get(s);
+          boolean is_ok = false;
+          for (String s1 : bindSet) {
+            if(s1.contains("(true)")){
+              is_ok = true; break;
+            }
+          }
+          if(is_ok) continue;
+          String existVariable = "";
+          for (String s1 : bindSet) {
+            blp.append(",").append(s1);
+            existVariable += s1.substring(s1.indexOf("("), s1.indexOf(")"));
+          }
           for (String s1 : var) {
             s1 = s1.trim();
-            String subS = bind.get(s).substring(s.indexOf("("), s.indexOf(")"));
-            if (subS.contains(s1)) continue;
+            if(existVariable.contains(s1)) continue;
             blp.append(",var(").append(s1).append(")");
           }
         } else {
@@ -132,20 +142,12 @@ public class ASPRuleController {
           flag = true;
         }
         String[] var = aspRule.getVar().split(",");
+        StringBuilder bln = new StringBuilder("bln(" + commonHead + ":-" + s);
+        String existVariable = s.substring(s.indexOf("("), s.indexOf(")"));
         for (String s1 : var) {
           s1 = s1.trim();
-          LiteralVar.add("var(" + s1 + ")");
-        }
-        StringBuilder bln = new StringBuilder("bln(" + commonHead + ":-" + s);
-
-        if (bind.containsKey(s)) {
-          if (bind.get(s).equals("(true)")) continue;
-          bln.append(",").append(bind.get(s));
-        } else {
-          for (String s1 : var) {
-            s1 = s1.trim();
-            bln.append(",var(").append(s1).append(")");
-          }
+          if(existVariable.contains(s1)) continue;
+          bln.append(",var(").append(s1).append(")");
         }
         ansArray.add(bln + ".");
       }
@@ -157,12 +159,14 @@ public class ASPRuleController {
     }
     String[] aspCodeArray = aspCode.split("\\.");
     for (String s : aspCodeArray) {
-      if (!s.contains(":-")) {
+      if (!s.contains(":-")&&!s.equals( " ")) {
+        //System.out.println("s"+s);
         s += ".";
         AspProgram.append(s);
       }
     }
-    AnswerSetResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
+
+        GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
     for (Integer integer : LiteralIdArray) {
       literalRepository.deleteById(integer);
     }
@@ -178,7 +182,7 @@ public class ASPRuleController {
     //System.out.println(groundingResponse.getAspCode());
    // System.out.println(groundingResponse.getPreBind().get("bid(M,P,N)"));
 //    System.out.println(preBind);
-    return null;
+
   }
   /**
    * 获取ASP程序，解析存放每条rule和每个lit
