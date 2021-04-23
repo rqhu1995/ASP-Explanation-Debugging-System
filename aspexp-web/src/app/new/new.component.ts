@@ -4,6 +4,7 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import {CodeSendService} from '../code-send.service';
 import {GroundingService} from "../grounding.service";
+import {Router} from "@angular/router";
 
 const THEME = 'ace/theme/textmate';
 const LANG = 'ace/mode/gringo';
@@ -38,7 +39,7 @@ export class NewComponent implements OnInit {
   selectedLiterals: string[][] = [];
   allTrueSelected: boolean = false;
   needBinding = false;
-  constructor(private codeSender: CodeSendService, private ground: GroundingService) {
+  constructor(private codeSender: CodeSendService, private ground: GroundingService, private router: Router) {
     this.outputBox = "";
     this.checkOptionsOne = [];
   }
@@ -276,7 +277,8 @@ export class NewComponent implements OnInit {
       res => {
         console.log(res);
         this.ground.setGroundedCode(res.data.groundCode);
-        window.open("http://localhost:4200/grounding", "_blank");
+        // window.open("http://localhost:4200/grounding", "_blank");
+        this.router.navigateByUrl('/grounding');
       }
     );
   }

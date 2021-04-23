@@ -37,6 +37,17 @@ public class ASPRule {
   @Column(name = "var")
   private String var;
 
+  public String getConstant() {
+    return constant;
+  }
+
+  public void setConstant(String constant) {
+    this.constant = constant;
+  }
+
+  @Column(name = "constant")
+  private String constant;
+
   public ASPRule() {}
 
   public String getNonblockIDList() {
