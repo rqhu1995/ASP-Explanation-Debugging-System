@@ -4,7 +4,8 @@ import cn.seu.kse.dto.ASPRule;
 import cn.seu.kse.dto.Literal;
 import cn.seu.kse.repository.ASPRuleRepository;
 import cn.seu.kse.repository.LiteralRepository;
-import cn.seu.kse.response.AnswerSetResponse;
+import cn.seu.kse.response.GroundAnswerResponse;
+import cn.seu.kse.response.GroundingResponse;
 import cn.seu.kse.util.parser.ASPLexer;
 import cn.seu.kse.util.parser.ASPParser;
 import cn.seu.kse.util.parser.ProgramVisitor;
@@ -65,7 +66,8 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     }
   }
   @Override
-  public AnswerSetResponse solveAndGetGrounding(String aspCode) throws  IOException{
+  public GroundAnswerResponse solveAndGetGrounding(String aspCode) throws  IOException{
+    System.out.println("aspCode:\n"+aspCode);
     String answerString;
     if (System.getProperty("os.name").contains("Windows")) {
       answerString =
@@ -74,8 +76,8 @@ public class ASPPrgServiceImpl implements ASPPrgService {
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
     }
-
-    AnswerSetResponse answerSetResponse = new AnswerSetResponse();
+    System.out.println("回答集：" + answerString);
+    GroundAnswerResponse answerSetResponse = new GroundAnswerResponse();
     if (answerString.contains("UNSAT")) {
       answerSetResponse.setSatisfiable(false);
       answerSetResponse.setAnswerSet(null);
