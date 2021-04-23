@@ -5,6 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class GroundingService {
   private groundedCode: any;
+  private answerSet: any;
+
 
   constructor() { }
 
@@ -13,5 +15,13 @@ export class GroundingService {
   }
   getGroundedCode() {
     return this.groundedCode;
+  }
+
+  setAnswerSet(answerSet) {
+    this.answerSet = answerSet;
+  }
+
+  getAnswerSet() {
+    return this.answerSet;
   }
 }
