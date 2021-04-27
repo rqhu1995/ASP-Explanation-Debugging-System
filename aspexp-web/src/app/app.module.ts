@@ -10,12 +10,14 @@ import { GroundingComponent } from './grounding/grounding.component';
 import { AppRoutingModule } from './app-routing.module';
 import {NzCheckboxModule, NzRadioModule, NzSelectModule, NzTableModule} from "ng-zorro-antd";
 import {FormsModule} from "@angular/forms";
+import {SafePipe} from "./safe.pipe";
 
 @NgModule({
   declarations: [
     AppComponent,
     NewComponent,
-    GroundingComponent
+    GroundingComponent,
+    SafePipe
   ],
   imports: [
     BrowserModule,

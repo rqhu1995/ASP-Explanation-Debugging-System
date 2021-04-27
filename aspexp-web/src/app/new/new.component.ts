@@ -5,6 +5,8 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import {CodeSendService} from '../code-send.service';
 import {GroundingService} from "../grounding.service";
 import {Router} from "@angular/router";
+import { Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer} from '@angular/platform-browser';
 
 const THEME = 'ace/theme/textmate';
 const LANG = 'ace/mode/gringo';
@@ -18,10 +20,12 @@ ace.config.set('themePath', '/assets');
   templateUrl: './new.component.html',
   styleUrls: ['./new.component.css'],
 })
+
+
 export class NewComponent implements OnInit {
   @ViewChild('codeEditor', {static: true}) codeEditorElmRef: ElementRef;
   private codeEditor: ace.Ace.Editor;
-
+  iframe;
   outputBox: String;
   answerSet: any;
   answerSetList: any = [];
@@ -39,9 +43,15 @@ export class NewComponent implements OnInit {
   selectedLiterals: string[][] = [];
   allTrueSelected: boolean = false;
   needBinding = false;
-  constructor(private codeSender: CodeSendService, private ground: GroundingService, private router: Router) {
+
+
+  constructor(private codeSender: CodeSendService,
+              private ground: GroundingService,
+              private router: Router,
+              private domSanitizer: DomSanitizer) {
     this.outputBox = "";
     this.checkOptionsOne = [];
+    this.iframe = 'http://localhost:8080';
   }
   updateAllChecked(): void {
     this.indeterminate = false;
@@ -278,7 +288,6 @@ export class NewComponent implements OnInit {
         console.log(res);
         this.ground.setGroundedCode(res.data.groundCode);
         this.ground.setGroundedCode(res.data.answerSet);
-
         // window.open("http://localhost:4200/grounding", "_blank");
         this.router.navigateByUrl('/grounding');
       }

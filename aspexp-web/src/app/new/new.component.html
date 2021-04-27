@@ -73,6 +73,10 @@
     </div>
   </div>
 
+  <div>
+    <iframe [src]="iframe | safe: 'resourceUrl'" width="500" height="600" ></iframe>
+  </div>
+
   <!-- 输出框 -->
   <div *ngIf="!startExplanation && !startGrounding" class="row mt-4">
     <div class="col">
