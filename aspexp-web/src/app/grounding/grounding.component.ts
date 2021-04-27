@@ -15,8 +15,13 @@ export class GroundingComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.groundCode.getGroundedCode());
     this.groundCodeBox = this.groundCode.getGroundedCode().split(".").join(".\n\n");
-    this.answerSetBox = this.groundCode.getAnswerSet();
+    if(this.groundCode.getAnswerSet() == undefined){
+      this.answerSetBox = "不一致";
+    }else {
+      this.answerSetBox = this.groundCode.getAnswerSet();
+    }
 
   }
 
