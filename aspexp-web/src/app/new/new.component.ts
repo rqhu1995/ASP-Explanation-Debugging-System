@@ -5,8 +5,7 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import {CodeSendService} from '../code-send.service';
 import {GroundingService} from "../grounding.service";
 import {Router} from "@angular/router";
-import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer} from '@angular/platform-browser';
 
 const THEME = 'ace/theme/textmate';
 const LANG = 'ace/mode/gringo';
@@ -109,6 +108,7 @@ export class NewComponent implements OnInit {
       highlightActiveLine: true,
       minLines: 10,
       maxLines: Infinity,
+      fontSize: 15
     };
     this.selected = 0;
     this.codeEditor = ace.edit(element, editorOptions);
@@ -287,7 +287,7 @@ export class NewComponent implements OnInit {
       res => {
         console.log(res);
         this.ground.setGroundedCode(res.data.groundCode);
-        this.ground.setGroundedCode(res.data.answerSet);
+        this.ground.setAnswerSet(res.data.answerSet);
         // window.open("http://localhost:4200/grounding", "_blank");
         this.router.navigateByUrl('/grounding');
       }

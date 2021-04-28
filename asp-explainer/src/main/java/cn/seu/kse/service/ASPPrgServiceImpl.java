@@ -75,8 +75,8 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+      System.out.println(answerString);
     }
-    System.out.println("回答集：" + answerString);
     GroundAnswerResponse answerSetResponse = new GroundAnswerResponse();
     if (answerString.contains("UNSAT")) {
       answerSetResponse.setSatisfiable(false);
@@ -162,7 +162,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                 }
               aspString.append(".");
               GroundCode += aspString.toString();
-              System.out.println("GroundCode"+GroundCode);
+
               answerSetResponse.setGroundCode(GroundCode);
               HashSet<ASPRule> aspRules = aspPrgService.programParser(aspString.toString());
               for (ASPRule aspRule : aspRules) {
@@ -194,8 +194,9 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+      System.out.println(answerString);
     }
-    System.out.println(answerString);
+
     HashSet<HashSet<String>> answerSets = new HashSet<>();
     if (answerString.contains("UNSAT")) {
       return null;

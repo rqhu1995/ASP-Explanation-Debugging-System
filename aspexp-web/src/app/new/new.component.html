@@ -73,16 +73,12 @@
     </div>
   </div>
 
-  <div>
-    <iframe [src]="iframe | safe: 'resourceUrl'" width="500" height="600" ></iframe>
-  </div>
-
   <!-- 输出框 -->
   <div *ngIf="!startExplanation && !startGrounding" class="row mt-4">
     <div class="col">
-      <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
-      <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
-            </textarea>
+      <div class="label-box border"><span class="mx-4 font-weight-light">求解结果</span></div>
+      <textarea class="form-control output" id="answersetbox" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
+      </textarea>
     </div>
   </div>
 
