@@ -229,7 +229,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     if (System.getProperty("os.name").contains("Windows")) {
       answerString =
               ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
-      System.out.println(answerString);
+      //System.out.println(answerString);
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");

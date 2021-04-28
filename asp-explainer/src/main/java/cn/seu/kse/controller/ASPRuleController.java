@@ -196,7 +196,7 @@ public class ASPRuleController {
         }
 
          */
-        System.out.println(AspProgram.toString());
+        //System.out.println(AspProgram.toString());
     GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(originalAnswerSetResponse);
     for (Integer integer : LiteralIdArray) {
@@ -221,21 +221,76 @@ public class ASPRuleController {
   @ResponseBody
   public ResultInfo programDebugging (@RequestBody String aspCode) throws IOException {
     ResultInfo result = new ResultInfo();
-    //HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
     HashSet<String> wellFounded= aspPrgService.solveAndGetWellFounded(aspCode);
     HashSet<HashSet<String>> answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
+    String aspCodeReplace = aspCode.replace(":-","::").replace("-", "fei").replace("::",":-");
+    HashSet<HashSet<String>> answerSetResponseReplace = aspPrgService.solveAndGetAnswerSet(aspCodeReplace);
+    HashSet<String> wellFoundedReplace= aspPrgService.solveAndGetWellFounded(aspCodeReplace);
+    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeReplace);
+    HashSet<String>Candidate = new HashSet<>();
+    HashSet<String>NAF = new HashSet<>();
+    HashSet<String>ansReturn = new HashSet<>();
+    for (ASPRule aspRule : aspRules) {
+      String[] HeadID = aspRule.getHeadID().split(",");
+      for (String s : HeadID) {
+        s = s.trim();
+        if (s.equals("")) continue;
+        LitNode literThroughID =
+                new LitNode(
+                        Objects.requireNonNull(
+                                literalRepository.findById(Integer.parseInt(s)).orElse(null)));
+        if(aspRule.getNegBodyIDList().length() != 0){
+          Candidate.add(literThroughID.getLiteral());
+        }
+        if(literThroughID.getLiteral().startsWith("fei")){
+            NAF.add(literThroughID.getLiteral().substring(3));
+        }
+      }
+    }
+    //System.out.println(Candidate);
+    //System.out.println(NAF);
     if (wellFounded == null) {
       //result.setStatus(0);
-      if(answerSetResponse == null){
+      boolean flag = false;
+      if(flag){
+
+      }
+      else{
+        for (String s : Candidate) {
+          if(s.startsWith("fei")){
+            ansReturn.add(s.replace("fei","-"));
+            ansReturn.add(s.substring(3));
+          }
+          else if(NAF.contains(s)){
+            ansReturn.add(s);
+            ansReturn.add("-"+s);
+          }
+        }
+      }
+    } else {
+      if(answerSetResponseReplace == null){
 
       }
       else{
 
+        for (String s : Candidate) {
+          for (HashSet<String> strings : answerSetResponseReplace) {
+            if(strings.contains(s)){
+              if(s.startsWith("fei")&&strings.contains(s.substring(3))){
+                ansReturn.add(s.replace("fei","-"));
+                ansReturn.add(s.substring(3));
+              }
+              if((!s.startsWith("fei") )&& strings.contains("fei"+s)){
+                ansReturn.add(s);
+                ansReturn.add("-"+s);
+              }
+            }
+          }
+        }
       }
-    } else {
-      //result.setStatus(1);
-      result.setData(answerSetResponse);
     }
+    result.setStatus(1);
+    result.setData(ansReturn);
     return result;
   }
   /**
