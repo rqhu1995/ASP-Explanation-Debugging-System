@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -60,6 +60,44 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   }
 
   @Override
+  public HashSet<String > solveAndGetWellFounded(String aspCode) throws  IOException{
+    String answerString;
+    File directory = new File(".");
+    HashSet<String>WellFoundedTrue = new HashSet<>();
+    String path = directory.getCanonicalPath();
+    File lpFile = new File(path + "/assign.lp");
+    OutputStream out = new FileOutputStream(lpFile);
+    BufferedWriter rd = new BufferedWriter(new OutputStreamWriter(out));
+    rd.write(aspCode);
+    rd.close();
+    out.close();
+    if (System.getProperty("os.name").contains("Windows")) {
+      answerString =
+              ShellExecutor.callShell("dlv -wf " + path + "/assign.lp");
+    }else{
+      answerString =
+              ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+    }
+    if (!answerString.contains("{")) {
+      return null;
+    } else {
+      String[] outputList = answerString.split(System.getProperty("line.separator"));
+      for (String line : outputList) {
+        if (line.startsWith("True:")) {
+          line = line.substring(line.indexOf("{")+1,line.length()-1);
+          System.out.println(line);
+          String[] singleAnswer = line.split(" ");
+          for (String s : singleAnswer) {
+            WellFoundedTrue.add(s.substring(0,s.indexOf(')')+1));
+          }
+        }
+      }
+    }
+
+    return WellFoundedTrue;
+  }
+
+  @Override
   public void saveRule(ASPRule aspRule) {
     if (!aspRuleRepository.findAll().contains(aspRule)) {
       aspRuleRepository.save(aspRule);
@@ -72,6 +110,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     if (System.getProperty("os.name").contains("Windows")) {
       answerString =
           ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
+      System.out.println(answerString);
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
@@ -191,6 +230,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     if (System.getProperty("os.name").contains("Windows")) {
       answerString =
               ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
+      System.out.println(answerString);
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
