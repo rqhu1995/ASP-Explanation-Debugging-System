@@ -19,5 +19,6 @@ public interface ASPPrgService {
 
   GroundAnswerResponse solveAndGetGrounding(String aspCode) throws  IOException;
 
+  HashSet<String > solveAndGetWellFounded(String aspCode) throws  IOException;
   void clearAll();
 }

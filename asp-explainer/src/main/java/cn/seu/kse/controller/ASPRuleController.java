@@ -50,10 +50,15 @@ public class ASPRuleController {
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
         for (ASPRule aspRule : aspRules) {
           if(aspRule.getConstant() == "") continue;
-            LiteralVar.add("var(" + aspRule.getConstant() + ").");
+           String[] constant = aspRule.getConstant().split(",");
+          for (String s : constant) {
+            LiteralVar.add("var(" + s + ").");
+          }
+
         }
     HashSet<Integer> LiteralIdArray = new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
+      System.out.println("负体部" + aspRule.getNegBodyIDList());
       if (aspRule.getVar().equals("")) continue;
       String[] HeadID = aspRule.getHeadID().split(",");
       ArrayList<String> posBody = new ArrayList<String>();
@@ -147,8 +152,11 @@ public class ASPRuleController {
           flag = true;
         }
         String[] var = aspRule.getVar().split(",");
+        System.out.println("!!!!!!!!");
+        System.out.println(Arrays.toString(var));
         StringBuilder bln = new StringBuilder("bln(" + commonHead + ":-" + s);
         String existVariable = s.substring(s.indexOf("("), s.indexOf(")"));
+        System.out.println(existVariable);
         for (String s1 : var) {
           s1 = s1.trim();
           if(existVariable.contains(s1)) continue;
@@ -173,7 +181,22 @@ public class ASPRuleController {
         for (String s : LiteralVar) {
           AspProgram.append(s);
         }
+        /*
+        for (HashSet<String> strings : originalAnswerSetResponse) {
+          for (String string : strings) {
+            if(string.startsWith("var(")){
+              System.out.println(string);
+              List<Literal> literThroughLit = literalRepository.findByLit(string);
+              for (Literal literal : literThroughLit) {
+                literalRepository.deleteById(literal.getId());
+              }
+              strings.remove(string);
+            }
+          }
+        }
 
+         */
+        System.out.println(AspProgram.toString());
     GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(originalAnswerSetResponse);
     for (Integer integer : LiteralIdArray) {
@@ -182,6 +205,7 @@ public class ASPRuleController {
     for (String s : LiteralVar) {
       List<Literal> literThroughLit = literalRepository.findByLit(s);
       for (Literal literal : literThroughLit) {
+        System.out.println(literal.getId());
         literalRepository.deleteById(literal.getId());
       }
     }
@@ -192,6 +216,27 @@ public class ASPRuleController {
    // System.out.println(groundingResponse.getPreBind().get("bid(M,P,N)"));
 //    System.out.println(preBind);
 
+  }
+  @PostMapping("/debugging")
+  @ResponseBody
+  public ResultInfo programDebugging (@RequestBody String aspCode) throws IOException {
+    ResultInfo result = new ResultInfo();
+    //HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
+    HashSet<String> wellFounded= aspPrgService.solveAndGetWellFounded(aspCode);
+    HashSet<HashSet<String>> answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
+    if (wellFounded == null) {
+      //result.setStatus(0);
+      if(answerSetResponse == null){
+
+      }
+      else{
+
+      }
+    } else {
+      //result.setStatus(1);
+      result.setData(answerSetResponse);
+    }
+    return result;
   }
   /**
    * 获取ASP程序，解析存放每条rule和每个lit
