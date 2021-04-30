@@ -10,6 +10,9 @@ public class ApplicableEdge {
   LitNode startNode;
   RuleNode endNode;
 
+  public ApplicableEdge() {
+  }
+
   public boolean isApplicable() {
     return isApplicable;
   }

@@ -12,11 +12,14 @@ import cn.seu.kse.response.ResultInfo;
 import cn.seu.kse.service.ASPLiteralService;
 import cn.seu.kse.service.ASPPrgService;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 @CrossOrigin
@@ -302,6 +305,7 @@ public class ASPRuleController {
   @PostMapping("/parseprogram")
   @ResponseBody
   public ResultInfo programStoring(@RequestBody String aspCode) throws IOException {
+    aspPrgService.clearAll();
     ResultInfo result = new ResultInfo();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
     for (ASPRule aspRule : aspRules) {
@@ -314,6 +318,32 @@ public class ASPRuleController {
       result.setStatus(1);
       result.setData(answerSetResponse);
     }
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.writeValue(Paths.get("answerset.json").toFile(), answerSetResponse);
+    return result;
+  }
+
+  @GetMapping("/getAnswerSet")
+  @ResponseBody
+  public ResultInfo getAnswerSet() throws IOException {
+    ResultInfo result = new ResultInfo();
+    ObjectMapper mapper = new ObjectMapper();
+    HashSet<?> answerSetResponse = mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
+    System.out.println(answerSetResponse);
+    result.setData(answerSetResponse);
+    result.setStatus(1);
+    return result;
+  }
+
+  @GetMapping("/getEU")
+  @ResponseBody
+  public ResultInfo getEU() throws IOException {
+    ResultInfo result = new ResultInfo();
+    ObjectMapper mapper = new ObjectMapper();
+    ARGraph eUResponse = mapper.readValue(Paths.get("EU.json").toFile(), ARGraph.class);
+    System.out.println(eUResponse);
+    result.setData(eUResponse);
+    result.setStatus(1);
     return result;
   }
 
@@ -344,7 +374,7 @@ public class ASPRuleController {
    */
   @GetMapping("/findexplanation")
   @ResponseBody
-  public ResultInfo constructExplanation(@RequestParam HashSet<String> answerSetRequest) {
+  public ResultInfo constructExplanation(@RequestParam HashSet<String> answerSetRequest) throws IOException {
     HashSet<String> answerSet = new HashSet<>();
     for (String asRequest : answerSetRequest) {
       answerSet.add(asRequest.replace("\"", ""));
@@ -434,9 +464,166 @@ public class ASPRuleController {
       explanationUniverse.setGraphLitNodes(litNode);
     }
     result.setData(explanationUniverse);
+//    ObjectMapper mapper = new ObjectMapper();
+//    mapper.writeValue(Paths.get("EU.json").toFile(), explanationUniverse);
     return result;
+  }
+
+  @GetMapping("/asm")
+  @ResponseBody
+  public ResultInfo constructAsm(@RequestParam String aspCode,@RequestParam HashSet<String> answerSetRequest) throws IOException {
+    HashSet<String> MSet = new HashSet<>();
+    for (String asRequest : answerSetRequest) {
+      MSet.add(asRequest.replace("\"", ""));
+    }
+   // System.out.println(MSet);
+   //System.out.println(aspCode);
+    ResultInfo result = new ResultInfo();
+    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
+    HashSet<String>NantSet = new HashSet<>();
+    HashSet<String>AllSet = new HashSet<>();
+    for (ASPRule aspRule : aspRules) {
+     // System.out.println(aspRule.getHeadID());
+      if(aspRule.getNegBodyIDList() != null){
+        String[] negStringId = aspRule.getNegBodyIDList().split(",");
+        for (String s : negStringId) {
+          LitNode Lit =
+                  new LitNode(
+                          Objects.requireNonNull(
+                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+          NantSet.add(Lit.getLiteral());
+          AllSet.add(Lit.getLiteral());
+        }
+      }
+      if(aspRule.getHeadID() != null){
+        String[] negStringId = aspRule.getHeadID().split(",");
+        for (String s : negStringId) {
+          LitNode Lit =
+                  new LitNode(
+                          Objects.requireNonNull(
+                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+          AllSet.add(Lit.getLiteral());
+        }
+      }
+      if(aspRule.getPosBodyIDList() != null){
+        String[] negStringId = aspRule.getPosBodyIDList().split(",");
+        for (String s : negStringId) {
+          LitNode Lit =
+                  new LitNode(
+                          Objects.requireNonNull(
+                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+          AllSet.add(Lit.getLiteral());
+        }
+      }
+    }
+   // HashSet<String> WfTrue = aspPrgService.solveAndGetWellFounded(aspCode);
+    HashSet<String> WfUndefined = aspPrgService.solveAndGetWellFoundedUndefined(aspCode);
+    //System.out.println(WfTrue);
+    //System.out.println(WfUndefined);
+    HashSet<HashSet<String>>subSet = getSubSet(AllSet);
+    HashSet<HashSet<String>>ans = null;
+    for (HashSet<String> U : subSet) {
+       if(SetContainSet(NantSet,U)){
+       //  System.out.println(U);
+         HashSet<String>t = new HashSet<>();
+         t.addAll(U);
+         t.retainAll(MSet);
+        // System.out.println(t.size());
+         if(t.size() == 0){
+            if(SetContainSet(WfUndefined, U)){
+              String aspCodeNew = getNRCode(aspCode,U);
+             // System.out.println(U);
+              //System.out.println(aspCodeNew);
+              HashSet<String> WFTrue = aspPrgService.solveAndGetWellFounded(aspCodeNew);
+              boolean flag = true;
+              if(WFTrue.size() == MSet.size()){
+                for (String s : WFTrue) {
+                  if(!MSet.contains(s)){
+                    flag = false;break;
+                  }
+                }
+                if(flag){
+                    if(ans==null){
+                      ans = new HashSet<>();
+                    }
+                    ans.add(U);
+                }
+              }
+            }
+         }
+       }
+    }
+    for (HashSet<String> an : ans) {
+      System.out.println(an);
+    }
+    result.setData(ans);
+    return result;
+  }
+
+  private String getNRCode(String aspCode, HashSet<String> u) {
+    String ans = "";
+   // System.out.println(u);
+    String []codeArray = aspCode.split("\n");
+    for (String s : codeArray) {
+      if(s.length()==0){
+        continue;
+      }
+      if(s.contains(":-")){
+        String Head = s.substring(0,s.indexOf(":"));
+        Head = Head.trim();
+        //System.out.println(Head+"12345");
+        //System.out.println(u.contains(Head));
+        if(! u.contains(Head)){
+          ans += s;
+        }
+      }
+      else{
+        s = s.replace(".","");
+        s = s.trim();
+        if(! u.contains(s)){
+          ans += (s+".\n");
+        }
+      }
+
+    }
+    return ans;
+
+  }
+
+  private boolean SetContainSet(HashSet<String> nantSet, HashSet<String> u) {
+    for (String s : u) {
+      if(!nantSet.contains(s)){
+        return false;
+      }
+    }
+    return true;
   }
 
   private void ueCycleDetection(
       HashSet<ApplicableEdge> candidateApEdge, HashSet<DependencyEdge> candidateDepEdge) {}
+
+
+  private static HashSet<HashSet<String>> getSubSet(HashSet<String> list) {
+    if (null == list || list.isEmpty()) {
+      return new HashSet<>();
+    }
+
+    HashSet<HashSet<String>> result = new HashSet<>();
+    for (int i = 0, size = (int) Math.pow(2, list.size()); i < size; i++) {
+      HashSet<String> subSet = new HashSet<>();
+      int index = i;
+      List<String>listNew = new ArrayList<String>(list);
+      for (int j = 0; j < listNew.size(); j++) {
+        if ((index & 1) == 1) {
+          subSet.add(listNew.get(j));
+        }
+        index >>= 1;
+      }
+      result.add(subSet);
+    }
+    return result;
+  }
+
 }
+
+

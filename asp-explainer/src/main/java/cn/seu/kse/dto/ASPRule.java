@@ -1,5 +1,7 @@
 package cn.seu.kse.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.Objects;
@@ -130,6 +132,7 @@ public class ASPRule {
     return Objects.hash(headID, posBodyIDList, negBodyIDList);
   }
 
+  @JsonIgnore
   public boolean isFact() {
     return this.getPosBodyIDList() == null
             &&

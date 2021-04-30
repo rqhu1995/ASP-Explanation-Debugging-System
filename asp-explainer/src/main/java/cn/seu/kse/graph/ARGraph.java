@@ -1,6 +1,7 @@
 package cn.seu.kse.graph;
 
 import cn.seu.kse.dto.ASPRule;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,34 +61,42 @@ public class ARGraph {
     return graphSinkNodes;
   }
 
+  @JsonSetter
   public void setGraphSinkNodes(HashSet<SinkNode> graphSinkNodes) {
     this.graphSinkNodes = graphSinkNodes;
   }
 
+  @JsonSetter
   public void setGraphApplicableEdges(HashSet<ApplicableEdge> graphApplicableEdges) {
     this.graphApplicableEdges = graphApplicableEdges;
   }
 
+  @JsonSetter
   public void setGraphDependencyEdges(HashSet<DependencyEdge> graphDependencyEdges) {
     this.graphDependencyEdges = graphDependencyEdges;
   }
 
+  @JsonSetter
   public void setGraphEndEdges(HashSet<EndEdge> graphEndEdges) {
     this.graphEndEdges = graphEndEdges;
   }
 
+  @JsonSetter
   public void setTop(SinkNode top) {
     this.top = top;
   }
 
+  @JsonSetter
   public void setBtm(SinkNode btm) {
     this.btm = btm;
   }
 
+  @JsonSetter
   public void setAsm(SinkNode asm) {
     this.asm = asm;
   }
 
+  @JsonSetter
   public void setUe(SinkNode ue) {
     this.ue = ue;
   }
@@ -96,6 +105,7 @@ public class ARGraph {
     return this.graphLitNodes;
   }
 
+  @JsonSetter
   public void setGraphLitNodes(HashSet<LitNode> graphLitNodes) {
     this.graphLitNodes = graphLitNodes;
   }
@@ -120,6 +130,7 @@ public class ARGraph {
     return this.graphRuleNodes;
   }
 
+  @JsonSetter
   public void setGraphRuleNodes(HashSet<RuleNode> graphRuleNodes) {
     this.graphRuleNodes = graphRuleNodes;
   }
@@ -141,7 +152,6 @@ public class ARGraph {
   public HashSet<ApplicableEdge> getGraphApplicableEdges() {
     return graphApplicableEdges;
   }
-
 
   public void setGraphApplicableEdges(ApplicableEdge graphApplicableEdge) {
     if (this.graphApplicableEdges == null) {

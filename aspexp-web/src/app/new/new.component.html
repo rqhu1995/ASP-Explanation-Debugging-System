@@ -76,9 +76,9 @@
   <!-- 输出框 -->
   <div *ngIf="!startExplanation && !startGrounding" class="row mt-4">
     <div class="col">
-      <div class="label-box border"><span class="mx-4 font-weight-light">Output</span></div>
-      <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
-            </textarea>
+      <div class="label-box border"><span class="mx-4 font-weight-light">求解结果</span></div>
+      <textarea class="form-control output" id="answersetbox" rows="20" disabled="true" aria-label="output-textarea">{{outputBox}}
+      </textarea>
     </div>
   </div>
 
@@ -160,5 +160,4 @@
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <svg id="graph" width="800" height="800"></svg>
 
-  <script src=""></script>
 </div>

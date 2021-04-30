@@ -43,19 +43,21 @@
     </div>
   </nav>
 </div>
-
-  <div class="row mt-4">
+<div class="container h-100 mt-4">
+  <div class="row mb-4">
     <div class="col">
-      <div class="label-box border"><span class="mx-4 font-weight-light">实例化后的ASP程序为</span></div>
-      <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{groundCodeBox}}
+      <div class="label-box border"><span class="mt-4 font-weight-light">实例化后的ASP程序为</span></div>
+      <textarea class="form-control output" rows="10" disabled="true" aria-label="output-textarea">{{groundCodeBox}}
             </textarea>
     </div>
 </div>
 
 <div class="row mt-4">
   <div class="col">
-    <div class="label-box border"><span class="mx-4 font-weight-light">回答集为</span></div>
-    <textarea class="form-control output" rows="20" disabled="true" aria-label="output-textarea">{{answerSetBox}}
+    <div class="label-box border"><span class="mt-4 font-weight-light">回答集为</span></div>
+    <textarea class="form-control output" rows="10" disabled="true" aria-label="output-textarea">{{answerSetBox}}
             </textarea>
   </div>
+  <button (click)="selectAnswerSetAndAssumption()">获取解释</button>
+</div>
 </div>

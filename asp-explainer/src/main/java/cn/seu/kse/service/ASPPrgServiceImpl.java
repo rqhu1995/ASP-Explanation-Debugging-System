@@ -58,7 +58,43 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     programVisitor.visit(tree);
     return programVisitor.getAspRule();
   }
+  @Override
+  public HashSet<String> solveAndGetWellFoundedUndefined(String aspCode) throws  IOException{
+    String answerString;
+    File directory = new File(".");
+    HashSet<String>WellFoundedTrue = new HashSet<>();
+    String path = directory.getCanonicalPath();
+    File lpFile = new File(path + "/assign.lp");
+    OutputStream out = new FileOutputStream(lpFile);
+    BufferedWriter rd = new BufferedWriter(new OutputStreamWriter(out));
+    rd.write(aspCode);
+    rd.close();
+    out.close();
+    if (System.getProperty("os.name").contains("Windows")) {
+      answerString =
+              ShellExecutor.callShell("dlv -wf " + path + "/assign.lp");
+    }else{
+      answerString =
+              ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+    }
+    if (!answerString.contains("{")) {
+      return null;
+    } else {
+      String[] outputList = answerString.split(System.getProperty("line.separator"));
+      for (String line : outputList) {
+        if (line.startsWith("Undefined:")) {
+          line = line.substring(line.indexOf("{")+1,line.length()-1);
+          String[] singleAnswer = line.split(",");
+          for (String s : singleAnswer) {
+            s = s.trim();
+            WellFoundedTrue.add(s);
+          }
+        }
+      }
+    }
 
+    return WellFoundedTrue;
+  }
   @Override
   public HashSet<String > solveAndGetWellFounded(String aspCode) throws  IOException{
     String answerString;
@@ -85,10 +121,10 @@ public class ASPPrgServiceImpl implements ASPPrgService {
       for (String line : outputList) {
         if (line.startsWith("True:")) {
           line = line.substring(line.indexOf("{")+1,line.length()-1);
-          System.out.println(line);
-          String[] singleAnswer = line.split(" ");
+          String[] singleAnswer = line.split(",");
           for (String s : singleAnswer) {
-            WellFoundedTrue.add(s.substring(0,s.indexOf(')')+1));
+            s = s.trim();
+            WellFoundedTrue.add(s);
           }
         }
       }
@@ -105,7 +141,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   }
   @Override
   public GroundAnswerResponse solveAndGetGrounding(String aspCode) throws  IOException{
-//    System.out.println("aspCode:\n"+aspCode);
+    System.out.println("aspCode:\n"+aspCode);
     String answerString;
     if (System.getProperty("os.name").contains("Windows")) {
       answerString =
@@ -114,6 +150,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+      System.out.println(answerString);
     }
     GroundAnswerResponse answerSetResponse = new GroundAnswerResponse();
     if (answerString.contains("UNSAT")) {
@@ -233,6 +270,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
     }else{
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
+      System.out.println(answerString);
     }
 
     HashSet<HashSet<String>> answerSets = new HashSet<>();

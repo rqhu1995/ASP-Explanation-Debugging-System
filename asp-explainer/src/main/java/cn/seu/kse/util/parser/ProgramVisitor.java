@@ -10,7 +10,6 @@ public class ProgramVisitor extends ASPBaseVisitor {
   public ProgramVisitor(ASPLiteralService aspLiteralService) {
     this.aspLiteralService = aspLiteralService;
   }
-
   ASPLiteralService aspLiteralService;
 
   HashSet<String> positiveBodySet = new HashSet<>();

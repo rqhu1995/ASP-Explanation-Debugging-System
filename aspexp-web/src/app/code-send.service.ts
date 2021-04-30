@@ -32,4 +32,8 @@ export class CodeSendService {
     return this.http.post<any>("http://localhost:8888/grounding", data,{ headers: this.headers });
   }
 
+  getAnswerSet(): Observable<any> {
+    return this.http.get<any>("http://localhost:8888/getAnswerSet");
+  }
+
 }

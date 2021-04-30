@@ -38,3 +38,10 @@ select.languages-select:focus > option:checked {
 div.answersetdisplay {
   font-size: large;
 }
+
+#answersetbox {
+  /*background-color:#666;*/
+  color: black;
+  font-size: 15pt;
+  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
