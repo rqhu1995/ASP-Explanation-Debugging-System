@@ -5,19 +5,15 @@ import cn.seu.kse.dto.Literal;
 import cn.seu.kse.graph.*;
 import cn.seu.kse.repository.ASPRuleRepository;
 import cn.seu.kse.repository.LiteralRepository;
-import cn.seu.kse.response.AnswerSetResponse;
 import cn.seu.kse.response.GroundAnswerResponse;
 import cn.seu.kse.response.GroundingResponse;
 import cn.seu.kse.response.ResultInfo;
 import cn.seu.kse.service.ASPLiteralService;
 import cn.seu.kse.service.ASPPrgService;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -30,17 +26,37 @@ public class ASPRuleController {
   @Autowired ASPPrgService aspPrgService;
   @Autowired ASPLiteralService aspLiteralService;
 
+
   @PostMapping("/grounding")
   @ResponseBody
   public ResultInfo grounding(@RequestBody GroundingResponse groundingResponse)
-//          , @RequestBody  HashMap<String, HashSet<String>> preBind)
+      //          , @RequestBody  HashMap<String, HashSet<String>> preBind)
       throws IOException {
-     aspPrgService.clearAll();
+    aspPrgService.clearAllButNoFact();
+    ObjectMapper mapper = new ObjectMapper();
     ResultInfo result = new ResultInfo();
-        HashSet<HashSet<String>> originalAnswerSetResponse = aspPrgService.solveAndGetAnswerSet(groundingResponse.getAspCode());
+    HashSet<ArrayList<String>> answerSet = new HashSet<>();
+    HashSet<?> originalAnswerSetResponse = mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
+    for (Object ans : originalAnswerSetResponse) {
+      answerSet.add((ArrayList<String>) ans);
+    }
+    System.out.println(originalAnswerSetResponse);
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
-    String aspCode = groundingResponse.getAspCode().replace(System.getProperty("line.separator")," ");
+    String aspCode = groundingResponse.getAspCode();
+    aspCode = aspCode.replace("\"", "\\\"");
+    String[] codeByLine = aspCode.split(System.getProperty("line.separator"));
+    StringBuilder aspCodeWithoutComment = new StringBuilder();
+    for (String code : codeByLine) {
+      if (!code.startsWith("%") && code.length() > 0) {
+        aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
+      }
+    }
+
+    aspCode =
+        aspCodeWithoutComment
+            .toString()
+            .replace(System.getProperty("line.separator"), " ");
 
     String aspCodeTemp = aspCode.replace(".", ".\n");
     aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
@@ -51,14 +67,13 @@ public class ASPRuleController {
     }
     ArrayList<String> ansArray = new ArrayList<String>();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
-        for (ASPRule aspRule : aspRules) {
-          if(aspRule.getConstant() == "") continue;
-           String[] constant = aspRule.getConstant().split(",");
-          for (String s : constant) {
-            LiteralVar.add("var(" + s + ").");
-          }
-
-        }
+    for (ASPRule aspRule : aspRules) {
+      if (aspRule.getConstant() == "") continue;
+      String[] constant = aspRule.getConstant().split(",");
+      for (String s : constant) {
+        LiteralVar.add("var(" + s + ").");
+      }
+    }
     HashSet<Integer> LiteralIdArray = new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
       System.out.println("负体部" + aspRule.getNegBodyIDList());
@@ -125,11 +140,12 @@ public class ASPRuleController {
           HashSet<String> bindSet = bind.get(s);
           boolean is_ok = false;
           for (String s1 : bindSet) {
-            if(s1.contains("(true)")){
-              is_ok = true; break;
+            if (s1.contains("(true)")) {
+              is_ok = true;
+              break;
             }
           }
-          if(is_ok) continue;
+          if (is_ok) continue;
           String existVariable = "";
           for (String s1 : bindSet) {
             blp.append(",").append(s1);
@@ -137,7 +153,7 @@ public class ASPRuleController {
           }
           for (String s1 : var) {
             s1 = s1.trim();
-            if(existVariable.contains(s1)) continue;
+            if (existVariable.contains(s1)) continue;
             blp.append(",var(").append(s1).append(")");
           }
         } else {
@@ -162,7 +178,7 @@ public class ASPRuleController {
         System.out.println(existVariable);
         for (String s1 : var) {
           s1 = s1.trim();
-          if(existVariable.contains(s1)) continue;
+          if (existVariable.contains(s1)) continue;
           bln.append(",var(").append(s1).append(")");
         }
         ansArray.add(bln + ".");
@@ -175,33 +191,34 @@ public class ASPRuleController {
     }
     String[] aspCodeArray = aspCode.split("\\.");
     for (String s : aspCodeArray) {
-      if (!s.contains(":-") && !s.equals( " ")) {
-        //System.out.println("s"+s);
+      if (!s.contains(":-") && !s.equals(" ")) {
+        // System.out.println("s"+s);
         s += ".";
         AspProgram.append(s);
       }
     }
-        for (String s : LiteralVar) {
-          AspProgram.append(s);
-        }
-        /*
-        for (HashSet<String> strings : originalAnswerSetResponse) {
-          for (String string : strings) {
-            if(string.startsWith("var(")){
-              System.out.println(string);
-              List<Literal> literThroughLit = literalRepository.findByLit(string);
-              for (Literal literal : literThroughLit) {
-                literalRepository.deleteById(literal.getId());
-              }
-              strings.remove(string);
-            }
+    for (String s : LiteralVar) {
+      AspProgram.append(s);
+    }
+    /*
+    for (HashSet<String> strings : originalAnswerSetResponse) {
+      for (String string : strings) {
+        if(string.startsWith("var(")){
+          System.out.println(string);
+          List<Literal> literThroughLit = literalRepository.findByLit(string);
+          for (Literal literal : literThroughLit) {
+            literalRepository.deleteById(literal.getId());
           }
+          strings.remove(string);
         }
+      }
+    }
 
-         */
-        //System.out.println(AspProgram.toString());
-    GroundAnswerResponse answerSetResponse = aspPrgService.solveAndGetGrounding(AspProgram.toString());
-    answerSetResponse.setAnswerSet(originalAnswerSetResponse);
+     */
+    // System.out.println(AspProgram.toString());
+    GroundAnswerResponse answerSetResponse =
+        aspPrgService.solveAndGetGrounding(AspProgram.toString());
+    answerSetResponse.setAnswerSet(answerSet);
     for (Integer integer : LiteralIdArray) {
       literalRepository.deleteById(integer);
     }
@@ -215,77 +232,76 @@ public class ASPRuleController {
     result.setStatus(1);
     result.setData(answerSetResponse);
     return result;
-    //System.out.println(groundingResponse.getAspCode());
-   // System.out.println(groundingResponse.getPreBind().get("bid(M,P,N)"));
-//    System.out.println(preBind);
+    // System.out.println(groundingResponse.getAspCode());
+    // System.out.println(groundingResponse.getPreBind().get("bid(M,P,N)"));
+    //    System.out.println(preBind);
 
   }
+
   @PostMapping("/debugging")
   @ResponseBody
-  public ResultInfo programDebugging (@RequestBody String aspCode) throws IOException {
+  public ResultInfo programDebugging(@RequestBody String aspCode) throws IOException {
     ResultInfo result = new ResultInfo();
-    HashSet<String> wellFounded= aspPrgService.solveAndGetWellFounded(aspCode);
+    HashSet<String> wellFounded = aspPrgService.solveAndGetWellFounded(aspCode);
     HashSet<HashSet<String>> answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
-    String aspCodeReplace = aspCode.replace(":-","::").replace("-", "fei").replace("::",":-");
-    HashSet<HashSet<String>> answerSetResponseReplace = aspPrgService.solveAndGetAnswerSet(aspCodeReplace);
-    HashSet<String> wellFoundedReplace= aspPrgService.solveAndGetWellFounded(aspCodeReplace);
+    String aspCodeReplace = aspCode.replace(":-", "::").replace("-", "fei").replace("::", ":-");
+    HashSet<HashSet<String>> answerSetResponseReplace =
+        aspPrgService.solveAndGetAnswerSet(aspCodeReplace);
+    HashSet<String> wellFoundedReplace = aspPrgService.solveAndGetWellFounded(aspCodeReplace);
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeReplace);
-    HashSet<String>Candidate = new HashSet<>();
-    HashSet<String>NAF = new HashSet<>();
-    HashSet<String>ansReturn = new HashSet<>();
+    HashSet<String> Candidate = new HashSet<>();
+    HashSet<String> NAF = new HashSet<>();
+    HashSet<String> ansReturn = new HashSet<>();
     for (ASPRule aspRule : aspRules) {
       String[] HeadID = aspRule.getHeadID().split(",");
       for (String s : HeadID) {
         s = s.trim();
         if (s.equals("")) continue;
         LitNode literThroughID =
-                new LitNode(
-                        Objects.requireNonNull(
-                                literalRepository.findById(Integer.parseInt(s)).orElse(null)));
-        if(aspRule.getNegBodyIDList().length() != 0){
+            new LitNode(
+                Objects.requireNonNull(
+                    literalRepository.findById(Integer.parseInt(s)).orElse(null)));
+        if (aspRule.getNegBodyIDList().length() != 0) {
           Candidate.add(literThroughID.getLiteral());
         }
-        if(literThroughID.getLiteral().startsWith("fei")){
-            NAF.add(literThroughID.getLiteral().substring(3));
+        if (literThroughID.getLiteral().startsWith("fei")) {
+          NAF.add(literThroughID.getLiteral().substring(3));
         }
       }
     }
-    //System.out.println(Candidate);
-    //System.out.println(NAF);
+    // System.out.println(Candidate);
+    // System.out.println(NAF);
     if (wellFounded == null) {
-      //result.setStatus(0);
+      // result.setStatus(0);
       boolean flag = false;
-      if(flag){
+      if (flag) {
 
-      }
-      else{
+      } else {
         for (String s : Candidate) {
-          if(s.startsWith("fei")){
-            ansReturn.add(s.replace("fei","-"));
+          if (s.startsWith("fei")) {
+            ansReturn.add(s.replace("fei", "-"));
             ansReturn.add(s.substring(3));
-          }
-          else if(NAF.contains(s)){
+          } else if (NAF.contains(s)) {
             ansReturn.add(s);
-            ansReturn.add("-"+s);
+            ansReturn.add("-" + s);
           }
         }
       }
     } else {
-      if(answerSetResponseReplace == null){
+      if (answerSetResponseReplace == null) {
 
-      }
-      else{
+      } else {
 
         for (String s : Candidate) {
           for (HashSet<String> strings : answerSetResponseReplace) {
-            if(strings.contains(s)){
-              if(s.startsWith("fei")&&strings.contains(s.substring(3))){
-                ansReturn.add(s.replace("fei","-"));
+            if (strings.contains(s)) {
+              if (s.startsWith("fei") && strings.contains(s.substring(3))) {
+                ansReturn.add(s.replace("fei", "-"));
                 ansReturn.add(s.substring(3));
               }
-              if((!s.startsWith("fei") )&& strings.contains("fei"+s)){
+              if ((!s.startsWith("fei")) && strings.contains("fei" + s)) {
                 ansReturn.add(s);
-                ansReturn.add("-"+s);
+                ansReturn.add("-" + s);
               }
             }
           }
@@ -307,11 +323,20 @@ public class ASPRuleController {
   public ResultInfo programStoring(@RequestBody String aspCode) throws IOException {
     aspPrgService.clearAll();
     ResultInfo result = new ResultInfo();
-    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
+    StringBuilder aspCodeWithoutComment = new StringBuilder();
+    String[] codeByLine = aspCode.split(System.getProperty("line.separator"));
+    for (String code : codeByLine) {
+      if (!code.startsWith("%") && code.length() > 0) {
+        aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
+      }
+    }
+    //    System.out.println(aspCodeWithoutComment.toString());
+    HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeWithoutComment.toString());
     for (ASPRule aspRule : aspRules) {
       aspPrgService.saveRule(aspRule);
     }
-    HashSet<HashSet<String>> answerSetResponse = aspPrgService.solveAndGetAnswerSet(aspCode);
+    HashSet<HashSet<String>> answerSetResponse =
+        aspPrgService.solveAndGetAnswerSet(aspCodeWithoutComment.toString());
     if (answerSetResponse == null) {
       result.setStatus(0);
     } else {
@@ -328,8 +353,9 @@ public class ASPRuleController {
   public ResultInfo getAnswerSet() throws IOException {
     ResultInfo result = new ResultInfo();
     ObjectMapper mapper = new ObjectMapper();
-    HashSet<?> answerSetResponse = mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
-    System.out.println(answerSetResponse);
+    HashSet<?> answerSetResponse =
+        mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
+//    System.out.println(answerSetResponse);
     result.setData(answerSetResponse);
     result.setStatus(1);
     return result;
@@ -374,7 +400,8 @@ public class ASPRuleController {
    */
   @GetMapping("/findexplanation")
   @ResponseBody
-  public ResultInfo constructExplanation(@RequestParam HashSet<String> answerSetRequest) throws IOException {
+  public ResultInfo constructExplanation(@RequestParam HashSet<String> answerSetRequest)
+      throws IOException {
     HashSet<String> answerSet = new HashSet<>();
     for (String asRequest : answerSetRequest) {
       answerSet.add(asRequest.replace("\"", ""));
@@ -382,7 +409,9 @@ public class ASPRuleController {
     ResultInfo result = new ResultInfo();
     ARGraph explanationUniverse = new ARGraph();
     // all rule nodes with parent and children atoms/endnode
-    List<String> underivable = aspRuleRepository.findAllUnderivable();
+    List<String> underivable = aspLiteralService.findAllUnderivable();
+    System.out.println("找到退不出");
+    System.out.println(underivable);
     for (ASPRule aspRule : aspRuleRepository.findAll()) {
       RuleNode ruleNode = new RuleNode(aspRule);
       boolean applicable = false;
@@ -464,94 +493,103 @@ public class ASPRuleController {
       explanationUniverse.setGraphLitNodes(litNode);
     }
     result.setData(explanationUniverse);
-//    ObjectMapper mapper = new ObjectMapper();
-//    mapper.writeValue(Paths.get("EU.json").toFile(), explanationUniverse);
+    //    ObjectMapper mapper = new ObjectMapper();
+    //    mapper.writeValue(Paths.get("EU.json").toFile(), explanationUniverse);
     return result;
   }
 
   @GetMapping("/asm")
   @ResponseBody
-  public ResultInfo constructAsm(@RequestParam String aspCode,@RequestParam HashSet<String> answerSetRequest) throws IOException {
+  public ResultInfo constructAsm(
+      @RequestParam String aspCode, @RequestParam HashSet<String> answerSetRequest)
+      throws IOException {
     HashSet<String> MSet = new HashSet<>();
     for (String asRequest : answerSetRequest) {
       MSet.add(asRequest.replace("\"", ""));
     }
-   // System.out.println(MSet);
-   //System.out.println(aspCode);
+    // System.out.println(MSet);
+    // System.out.println(aspCode);
     ResultInfo result = new ResultInfo();
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCode);
-    HashSet<String>NantSet = new HashSet<>();
-    HashSet<String>AllSet = new HashSet<>();
+    HashSet<String> NantSet = new HashSet<>();
+    HashSet<String> AllSet = new HashSet<>();
     for (ASPRule aspRule : aspRules) {
-     // System.out.println(aspRule.getHeadID());
-      if(aspRule.getNegBodyIDList() != null){
+      // System.out.println(aspRule.getHeadID());
+      if (aspRule.getNegBodyIDList() != null) {
         String[] negStringId = aspRule.getNegBodyIDList().split(",");
         for (String s : negStringId) {
           LitNode Lit =
-                  new LitNode(
-                          Objects.requireNonNull(
-                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+              new LitNode(
+                  Objects.requireNonNull(
+                      literalRepository
+                          .findById(Integer.parseInt(aspRule.getHeadID()))
+                          .orElse(null)));
           NantSet.add(Lit.getLiteral());
           AllSet.add(Lit.getLiteral());
         }
       }
-      if(aspRule.getHeadID() != null){
+      if (aspRule.getHeadID() != null) {
         String[] negStringId = aspRule.getHeadID().split(",");
         for (String s : negStringId) {
           LitNode Lit =
-                  new LitNode(
-                          Objects.requireNonNull(
-                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+              new LitNode(
+                  Objects.requireNonNull(
+                      literalRepository
+                          .findById(Integer.parseInt(aspRule.getHeadID()))
+                          .orElse(null)));
           AllSet.add(Lit.getLiteral());
         }
       }
-      if(aspRule.getPosBodyIDList() != null){
+      if (aspRule.getPosBodyIDList() != null) {
         String[] negStringId = aspRule.getPosBodyIDList().split(",");
         for (String s : negStringId) {
           LitNode Lit =
-                  new LitNode(
-                          Objects.requireNonNull(
-                                  literalRepository.findById(Integer.parseInt(aspRule.getHeadID())).orElse(null)));
+              new LitNode(
+                  Objects.requireNonNull(
+                      literalRepository
+                          .findById(Integer.parseInt(aspRule.getHeadID()))
+                          .orElse(null)));
           AllSet.add(Lit.getLiteral());
         }
       }
     }
-   // HashSet<String> WfTrue = aspPrgService.solveAndGetWellFounded(aspCode);
+    // HashSet<String> WfTrue = aspPrgService.solveAndGetWellFounded(aspCode);
     HashSet<String> WfUndefined = aspPrgService.solveAndGetWellFoundedUndefined(aspCode);
-    //System.out.println(WfTrue);
-    //System.out.println(WfUndefined);
-    HashSet<HashSet<String>>subSet = getSubSet(AllSet);
-    HashSet<HashSet<String>>ans = null;
+    // System.out.println(WfTrue);
+    // System.out.println(WfUndefined);
+    HashSet<HashSet<String>> subSet = getSubSet(AllSet);
+    HashSet<HashSet<String>> ans = null;
     for (HashSet<String> U : subSet) {
-       if(SetContainSet(NantSet,U)){
-       //  System.out.println(U);
-         HashSet<String>t = new HashSet<>();
-         t.addAll(U);
-         t.retainAll(MSet);
+      if (SetContainSet(NantSet, U)) {
+        //  System.out.println(U);
+        HashSet<String> t = new HashSet<>();
+        t.addAll(U);
+        t.retainAll(MSet);
         // System.out.println(t.size());
-         if(t.size() == 0){
-            if(SetContainSet(WfUndefined, U)){
-              String aspCodeNew = getNRCode(aspCode,U);
-             // System.out.println(U);
-              //System.out.println(aspCodeNew);
-              HashSet<String> WFTrue = aspPrgService.solveAndGetWellFounded(aspCodeNew);
-              boolean flag = true;
-              if(WFTrue.size() == MSet.size()){
-                for (String s : WFTrue) {
-                  if(!MSet.contains(s)){
-                    flag = false;break;
-                  }
-                }
-                if(flag){
-                    if(ans==null){
-                      ans = new HashSet<>();
-                    }
-                    ans.add(U);
+        if (t.size() == 0) {
+          if (SetContainSet(WfUndefined, U)) {
+            String aspCodeNew = getNRCode(aspCode, U);
+            // System.out.println(U);
+            // System.out.println(aspCodeNew);
+            HashSet<String> WFTrue = aspPrgService.solveAndGetWellFounded(aspCodeNew);
+            boolean flag = true;
+            if (WFTrue.size() == MSet.size()) {
+              for (String s : WFTrue) {
+                if (!MSet.contains(s)) {
+                  flag = false;
+                  break;
                 }
               }
+              if (flag) {
+                if (ans == null) {
+                  ans = new HashSet<>();
+                }
+                ans.add(U);
+              }
             }
-         }
-       }
+          }
+        }
+      }
     }
     for (HashSet<String> an : ans) {
       System.out.println(an);
@@ -562,37 +600,34 @@ public class ASPRuleController {
 
   private String getNRCode(String aspCode, HashSet<String> u) {
     String ans = "";
-   // System.out.println(u);
-    String []codeArray = aspCode.split("\n");
+    // System.out.println(u);
+    String[] codeArray = aspCode.split("\n");
     for (String s : codeArray) {
-      if(s.length()==0){
+      if (s.length() == 0) {
         continue;
       }
-      if(s.contains(":-")){
-        String Head = s.substring(0,s.indexOf(":"));
+      if (s.contains(":-")) {
+        String Head = s.substring(0, s.indexOf(":"));
         Head = Head.trim();
-        //System.out.println(Head+"12345");
-        //System.out.println(u.contains(Head));
-        if(! u.contains(Head)){
+        // System.out.println(Head+"12345");
+        // System.out.println(u.contains(Head));
+        if (!u.contains(Head)) {
           ans += s;
         }
-      }
-      else{
-        s = s.replace(".","");
+      } else {
+        s = s.replace(".", "");
         s = s.trim();
-        if(! u.contains(s)){
-          ans += (s+".\n");
+        if (!u.contains(s)) {
+          ans += (s + ".\n");
         }
       }
-
     }
     return ans;
-
   }
 
   private boolean SetContainSet(HashSet<String> nantSet, HashSet<String> u) {
     for (String s : u) {
-      if(!nantSet.contains(s)){
+      if (!nantSet.contains(s)) {
         return false;
       }
     }
@@ -601,7 +636,6 @@ public class ASPRuleController {
 
   private void ueCycleDetection(
       HashSet<ApplicableEdge> candidateApEdge, HashSet<DependencyEdge> candidateDepEdge) {}
-
 
   private static HashSet<HashSet<String>> getSubSet(HashSet<String> list) {
     if (null == list || list.isEmpty()) {
@@ -612,7 +646,7 @@ public class ASPRuleController {
     for (int i = 0, size = (int) Math.pow(2, list.size()); i < size; i++) {
       HashSet<String> subSet = new HashSet<>();
       int index = i;
-      List<String>listNew = new ArrayList<String>(list);
+      List<String> listNew = new ArrayList<String>(list);
       for (int j = 0; j < listNew.size(); j++) {
         if ((index & 1) == 1) {
           subSet.add(listNew.get(j));
@@ -623,7 +657,4 @@ public class ASPRuleController {
     }
     return result;
   }
-
 }
-
-

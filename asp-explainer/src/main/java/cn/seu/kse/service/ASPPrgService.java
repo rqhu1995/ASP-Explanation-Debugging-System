@@ -22,5 +22,8 @@ public interface ASPPrgService {
   HashSet<String > solveAndGetWellFounded(String aspCode) throws  IOException;
 
   HashSet<String> solveAndGetWellFoundedUndefined(String aspCode) throws  IOException;
+
   void clearAll();
+
+  void clearAllButNoFact();
 }

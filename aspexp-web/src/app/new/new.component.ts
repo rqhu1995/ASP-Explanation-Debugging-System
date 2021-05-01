@@ -105,12 +105,16 @@ export class NewComponent implements OnInit {
     const editorOptions: Partial<ace.Ace.EditorOptions> = {
       highlightActiveLine: true,
       minLines: 10,
-      maxLines: Infinity,
-      fontSize: 15
+      maxLines: 10,
+      fontSize: 15,
+      autoScrollEditorIntoView: true
     };
     this.selected = 0;
     this.codeEditor = ace.edit(element, editorOptions);
     this.codeEditor.setTheme(THEME);
+    // this.codeEditor.resize(true);
+    // this.codeEditor.scrollToLine(50, true, true, function () {});
+    // this.codeEditor.gotoLine(50, 0, true);
     this.codeEditor.getSession().setMode(LANG);
     this.codeEditor.setShowFoldWidgets(true); // for the scope fold feature
   }

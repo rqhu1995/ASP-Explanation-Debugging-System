@@ -174,7 +174,8 @@ public class ASPPrgServiceImpl implements ASPPrgService {
               int headN = ansLit.indexOf("))",headS) + 1;
               String headString = ansLit.substring(headS,headN);
               String []head = headString.split("\\),");
-              StringBuilder aspString = new StringBuilder(); boolean flag = false;
+              StringBuilder aspString = new StringBuilder();
+              boolean flag = false;
               for (String s : head) {
                 if(s.charAt(s.length()-1) != ')') s += ')';
                 if(aspLiteralService.findByLiteral(s)== null ) {
@@ -268,6 +269,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
               ShellExecutor.callShell("echo " + aspCode.replace("\n", " ") + " | clingo 0");
       //System.out.println(answerString);
     }else{
+      aspCode = aspCode.replace("\"", "\\\"");
       answerString =
               ShellExecutor.callShell("echo \"" + aspCode.replace("\n", " ") + "\" | clingo 0");
       System.out.println(answerString);
@@ -296,6 +298,18 @@ public class ASPPrgServiceImpl implements ASPPrgService {
       }
     }
     return answerSets;
+  }
+
+  @Override
+  public void clearAllButNoFact() {
+    for (ASPRule aspRule : aspRuleRepository.findAll()) {
+      if(!aspRule.isFact()){
+        aspRuleRepository.deleteById(aspRule.getId());
+      } else {
+        System.out.println(aspRule.getId());
+      }
+    }
+    literalRepository.deleteAll();
   }
 
   @Override

@@ -134,11 +134,24 @@ public class ASPRule {
 
   @JsonIgnore
   public boolean isFact() {
-    return this.getPosBodyIDList() == null
+    return (this.getPosBodyIDList() == null || this.getPosBodyIDList().length() == 0)
             &&
-            this.getNegBodyIDList() == null
+            (this.getNegBodyIDList() == null || this.getNegBodyIDList().length() == 0)
             &&
-            this.getHeadID() != null;
+            (this.getHeadID() != null || this.getHeadID().length() != 0);
   }
 
+  @Override
+  public String toString() {
+    return "ASPRule{" +
+            "id=" + id +
+            ", headID='" + headID + '\'' +
+            ", posBodyIDList='" + posBodyIDList + '\'' +
+            ", negBodyIDList='" + negBodyIDList + '\'' +
+            ", nonblockIDList='" + nonblockIDList + '\'' +
+            ", groundFlag=" + groundFlag +
+            ", var='" + var + '\'' +
+            ", constant='" + constant + '\'' +
+            '}';
+  }
 }

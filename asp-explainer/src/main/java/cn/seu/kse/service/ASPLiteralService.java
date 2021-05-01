@@ -11,4 +11,5 @@ public interface ASPLiteralService {
   int saveLiteral(String literal, boolean ground);
   Literal findByLiteral(String literal);
   HashSet<String> findNonGround();
+  List<String> findAllUnderivable();
 }
