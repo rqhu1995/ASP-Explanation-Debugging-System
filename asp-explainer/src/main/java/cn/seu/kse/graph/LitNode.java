@@ -8,11 +8,12 @@ public class LitNode extends Node{
   private String literal;
   private String nodeID;
 
-
-
   public LitNode(Literal literal) {
     this.literal = literal.getLit();
     this.nodeID = "l-" + literal.getId();
+  }
+
+  public LitNode() {
   }
 
   public String getLiteral() {

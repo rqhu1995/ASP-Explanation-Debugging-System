@@ -2,7 +2,7 @@ package cn.seu.kse.graph;
 
 import java.util.Objects;
 
-public class SinkNode extends Node {
+public class SinkNode  extends Node {
 
   String sinkType;
   String id;
@@ -10,6 +10,9 @@ public class SinkNode extends Node {
   public SinkNode(String sinkType) {
     this.sinkType = sinkType;
     this.id = "s-" + sinkType;
+  }
+
+  public SinkNode() {
   }
 
 

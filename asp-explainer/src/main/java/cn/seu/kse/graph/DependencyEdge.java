@@ -8,6 +8,10 @@ public class DependencyEdge {
 
   boolean dependency;
   RuleNode startNode;
+
+  public DependencyEdge() {
+  }
+
   LitNode endNode;
 
   public void setDependency(boolean dependency) {

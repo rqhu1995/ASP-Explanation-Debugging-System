@@ -4,7 +4,7 @@ import cn.seu.kse.dto.ASPRule;
 
 import java.util.Objects;
 
-public class RuleNode extends Node{
+public class RuleNode  extends Node{
   private String ruleID;
   private ASPRule ruleContent;
 
@@ -12,6 +12,9 @@ public class RuleNode extends Node{
   public RuleNode(ASPRule ruleContent) {
     this.ruleID = "r-" + ruleContent.getId();
     this.ruleContent = ruleContent;
+  }
+
+  public RuleNode() {
   }
 
   public String getRuleID() {
