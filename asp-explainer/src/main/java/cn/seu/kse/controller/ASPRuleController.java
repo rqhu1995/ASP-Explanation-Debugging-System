@@ -32,7 +32,7 @@ public class ASPRuleController {
   public ResultInfo grounding(@RequestBody GroundingResponse groundingResponse)
       //          , @RequestBody  HashMap<String, HashSet<String>> preBind)
       throws IOException {
-    aspPrgService.clearAllButNoFact();
+    aspPrgService.clearAll();
     ObjectMapper mapper = new ObjectMapper();
     ResultInfo result = new ResultInfo();
     HashSet<ArrayList<String>> answerSet = new HashSet<>();
@@ -40,15 +40,15 @@ public class ASPRuleController {
     for (Object ans : originalAnswerSetResponse) {
       answerSet.add((ArrayList<String>) ans);
     }
-    System.out.println(originalAnswerSetResponse);
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCode = groundingResponse.getAspCode();
-    aspCode = aspCode.replace("\"", "\\\"");
-    String[] codeByLine = aspCode.split(System.getProperty("line.separator"));
+
+//    aspCode = aspCode.replace("\"", "\\\"");
+    String[] codeByLine = aspCode.split("\n");
     StringBuilder aspCodeWithoutComment = new StringBuilder();
     for (String code : codeByLine) {
-      if (!code.startsWith("%") && code.length() > 0) {
+      if (!code.startsWith("%") && code.length() > 0 && !code.equals(System.getProperty("line.separator"))) {
         aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
       }
     }
@@ -171,11 +171,8 @@ public class ASPRuleController {
           flag = true;
         }
         String[] var = aspRule.getVar().split(",");
-        System.out.println("!!!!!!!!");
-        System.out.println(Arrays.toString(var));
         StringBuilder bln = new StringBuilder("bln(" + commonHead + ":-" + s);
         String existVariable = s.substring(s.indexOf("("), s.indexOf(")"));
-        System.out.println(existVariable);
         for (String s1 : var) {
           s1 = s1.trim();
           if (existVariable.contains(s1)) continue;
@@ -215,7 +212,8 @@ public class ASPRuleController {
     }
 
      */
-    // System.out.println(AspProgram.toString());
+        System.out.println("ASPProgram");
+    System.out.println(AspProgram.toString());
     GroundAnswerResponse answerSetResponse =
         aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(answerSet);
@@ -330,7 +328,6 @@ public class ASPRuleController {
         aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
       }
     }
-    //    System.out.println(aspCodeWithoutComment.toString());
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeWithoutComment.toString());
     for (ASPRule aspRule : aspRules) {
       aspPrgService.saveRule(aspRule);
@@ -456,7 +453,11 @@ public class ASPRuleController {
       }
       for (RuleNode rNode : explanationUniverse.getGraphRuleNodes()) {
         if (rNode.getRuleContent().isFact()) {
-          EndEdge topEndEdge = new EndEdge(rNode, explanationUniverse.getTop());
+          LitNode factLitNode =
+                  new LitNode(
+                          Objects.requireNonNull(
+                                  literalRepository.findById(Integer.parseInt(rNode.getRuleContent().getHeadID())).orElse(null)));
+          EndEdge topEndEdge = new EndEdge(factLitNode, explanationUniverse.getTop());
           explanationUniverse.setGraphEndEdges(topEndEdge);
         }
       }

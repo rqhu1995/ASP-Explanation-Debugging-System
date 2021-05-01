@@ -37,7 +37,7 @@ public class ASPPrgServiceImpl implements ASPPrgService {
   public HashSet<ASPRule> programParser(String aspProgram) {
     HashSet<ASPRule> programRules = new HashSet<>();
 
-    String[] rules = aspProgram.split("\n");
+    String[] rules = aspProgram.split(System.getProperty("line.separator"));
     for (String rule : rules) {
       if (rule.startsWith("%")) {
         continue;
@@ -181,7 +181,6 @@ public class ASPPrgServiceImpl implements ASPPrgService {
                 if(aspLiteralService.findByLiteral(s)== null ) {
                   if(s.length() == 0) continue;
                   String temp = s + ".";
-                  aspPrgService.programParser(temp);
                 }
                Literal litFound = aspLiteralService.findByLiteral(s);
 
@@ -248,6 +247,10 @@ public class ASPPrgServiceImpl implements ASPPrgService {
             else{
               Literal litFound = aspLiteralService.findByLiteral(ansLit);
               answerSet.add(litFound);
+              HashSet<ASPRule>aspRules =  aspPrgService.programParser(ansLit+".");
+              for (ASPRule aspRule : aspRules) {
+                aspPrgService.saveRule(aspRule);
+              }
             }
           }
           //answerSetResponse.addAnswerSet(answerSet);
