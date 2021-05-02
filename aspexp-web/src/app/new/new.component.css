@@ -1,38 +1,45 @@
-div.code-editor { max-height: 70vh; }
-
-div.label-box {
-    border-top-left-radius: .5rem!important;
-    border-top-right-radius: .5rem!important;
+div.code-editor {
+  max-height: 70vh;
 }
 
-.form-control { border-radius: 0 !important; }
+div.label-box {
+  border-top-left-radius: .5rem !important;
+  border-top-right-radius: .5rem !important;
+}
 
-.form-control:disabled { background-color: #ffffff !important; }
+.form-control {
+  border-radius: 0 !important;
+}
+
+.form-control:disabled {
+  background-color: #ffffff !important;
+}
 
 .output {
-    border-bottom-left-radius: .5rem!important;
-    border-bottom-right-radius: .5rem!important;
+  border-bottom-left-radius: .5rem !important;
+  border-bottom-right-radius: .5rem !important;
 }
 
 .btn-beautify {
-    color: #ffffff;
-    background-color: #4b6cf6;
+  color: #ffffff;
+  background-color: #4b6cf6;
 }
+
 nz-select {
   width: 100%;
 }
 
 select.languages-select {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 select.languages-select > option {
-    display: block;
-    background: ghostwhite;
+  display: block;
+  background: ghostwhite;
 }
 
 select.languages-select:focus > option:checked {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 div.answersetdisplay {
@@ -43,5 +50,14 @@ div.answersetdisplay {
   /*background-color:#666;*/
   color: black;
   font-size: 15pt;
-  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+  font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
+
+#defaultrue {
+  font-size: 13pt;
+}
+
+#selectBoxes {
+  font-size: 13pt;
+}
+

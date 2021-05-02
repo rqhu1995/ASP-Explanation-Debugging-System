@@ -83,23 +83,24 @@
   </div>
 
   <!-- 交互实例化框 -->
+  <div class="wrapper container">
   <div *ngIf="startGrounding">
-    <div class="row mt-4">
-      <p>勾选默认为真的文字</p>
+    <div nz-row>
+      <p id="defaultrue">勾选默认为真的文字</p>
     </div>
     <div style="border-bottom: 1px solid rgb(233, 233, 233);" class="row mt-4">
-      <label nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
+      <label id="selectBoxes" nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
              [nzIndeterminate]="indeterminate">
         全部选择
       </label>
     </div>
     <br>
-    <div class="row mt-8">
-      <div class="col-6 col-lg-4 col-md-6 col-sm-8 w-75">
-      <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+    <div nz-row>
+      <div nz-col nzSpan="6" id="selectBoxes_2">
+      <nz-checkbox-group  [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
       </div>
-      <div class="col-6 col-lg-4 col-md-6 col-sm-8 w-75">
-      <button *ngIf="needBinding" type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="goBinding()">
+      <div nz-col nzSpan="8" nzOffset="8">
+      <button *ngIf="needBinding" type="button" class="btn btn-beautify btn-sm btn-block" (click)="goBinding()">
         绑定变量
       </button>
       </div>
@@ -155,6 +156,7 @@
       <label nz-radio nzValue="C">Option C</label>
     </nz-radio-group>
     -->
+  </div>
   </div>
 
   <script src="https://d3js.org/d3.v4.min.js"></script>

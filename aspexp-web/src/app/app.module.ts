@@ -8,7 +8,7 @@ import {CodeSendService} from './code-send.service';
 import {Aspprogram} from './object/aspprogram';
 import { GroundingComponent } from './grounding/grounding.component';
 import { AppRoutingModule } from './app-routing.module';
-import {NzCheckboxModule, NzRadioModule, NzSelectModule, NzTableModule} from "ng-zorro-antd";
+import {NzCheckboxModule, NzGridModule, NzRadioModule, NzSelectModule, NzTableModule} from "ng-zorro-antd";
 import {FormsModule} from "@angular/forms";
 import {SafePipe} from "./safe.pipe";
 
@@ -28,7 +28,8 @@ import {SafePipe} from "./safe.pipe";
     FormsModule,
     NzCheckboxModule,
     NzTableModule,
-    NzSelectModule
+    NzSelectModule,
+    NzGridModule
   ],
   providers: [CodeSendService, Aspprogram],
   bootstrap: [AppComponent]
