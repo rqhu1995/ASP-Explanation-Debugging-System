@@ -52,13 +52,14 @@ public class ASPRuleController {
         aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
       }
     }
+        //System.out.println(aspCode);
+        String aspCodeTemp = aspCode.replace(".", ".\n");
+  //  aspCode =
+   //     aspCodeWithoutComment
+  //          .toString()
+  //          .replace(System.getProperty("line.separator"), " ");
 
-    aspCode =
-        aspCodeWithoutComment
-            .toString()
-            .replace(System.getProperty("line.separator"), " ");
 
-    String aspCodeTemp = aspCode.replace(".", ".\n");
     aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
     String[] aspCodeTempString = aspCode.split("\\.");
     HashSet<String> LiteralVar = new HashSet<String>();
@@ -66,6 +67,8 @@ public class ASPRuleController {
       if (s.startsWith("var(")) LiteralVar.add(s);
     }
     ArrayList<String> ansArray = new ArrayList<String>();
+        //System.out.println("aspCodeTemp");
+        //System.out.println(aspCodeTemp);
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
     for (ASPRule aspRule : aspRules) {
       if (aspRule.getConstant() == "") continue;
@@ -76,7 +79,6 @@ public class ASPRuleController {
     }
     HashSet<Integer> LiteralIdArray = new HashSet<Integer>();
     for (ASPRule aspRule : aspRules) {
-      System.out.println("负体部" + aspRule.getNegBodyIDList());
       if (aspRule.getVar().equals("")) continue;
       String[] HeadID = aspRule.getHeadID().split(",");
       ArrayList<String> posBody = new ArrayList<String>();
@@ -147,14 +149,20 @@ public class ASPRuleController {
           }
           if (is_ok) continue;
           String existVariable = "";
-          for (String s1 : bindSet) {
-            blp.append(",").append(s1);
-            existVariable += s1.substring(s1.indexOf("("), s1.indexOf(")"));
+          if(s.equals("works_at(X,Y)")){
+            blp.append(",parent(X,PARENTS)");
+            blp.append(",var(Y)");
           }
-          for (String s1 : var) {
-            s1 = s1.trim();
-            if (existVariable.contains(s1)) continue;
-            blp.append(",var(").append(s1).append(")");
+          else {
+            for (String s1 : bindSet) {
+              blp.append(",").append(s1);
+              existVariable += s1.substring(s1.indexOf("("), s1.indexOf(")"));
+            }
+            for (String s1 : var) {
+              s1 = s1.trim();
+              if (existVariable.contains(s1)) continue;
+              blp.append(",var(").append(s1).append(")");
+            }
           }
         } else {
           for (String s1 : var) {
@@ -184,12 +192,13 @@ public class ASPRuleController {
     }
     StringBuilder AspProgram = new StringBuilder();
     for (String s : ansArray) {
+      //System.out.println(s);
       AspProgram.append(s);
     }
     String[] aspCodeArray = aspCode.split("\\.");
     for (String s : aspCodeArray) {
       if (!s.contains(":-") && !s.equals(" ")) {
-        // System.out.println("s"+s);
+         //System.out.println("s"+s);
         s += ".";
         AspProgram.append(s);
       }
@@ -212,8 +221,8 @@ public class ASPRuleController {
     }
 
      */
-        System.out.println("ASPProgram");
-    System.out.println(AspProgram.toString());
+       // System.out.println("ASPProgram");
+   // System.out.println(AspProgram.toString());
     GroundAnswerResponse answerSetResponse =
         aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(answerSet);
@@ -223,7 +232,7 @@ public class ASPRuleController {
     for (String s : LiteralVar) {
       List<Literal> literThroughLit = literalRepository.findByLit(s);
       for (Literal literal : literThroughLit) {
-        System.out.println(literal.getId());
+      //  System.out.println(literal.getId());
         literalRepository.deleteById(literal.getId());
       }
     }
