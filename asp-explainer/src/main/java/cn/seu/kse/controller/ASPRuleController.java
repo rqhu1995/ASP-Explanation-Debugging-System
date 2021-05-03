@@ -26,7 +26,6 @@ public class ASPRuleController {
   @Autowired ASPPrgService aspPrgService;
   @Autowired ASPLiteralService aspLiteralService;
 
-
   @PostMapping("/grounding")
   @ResponseBody
   public ResultInfo grounding(@RequestBody GroundingResponse groundingResponse)
@@ -36,7 +35,8 @@ public class ASPRuleController {
     ObjectMapper mapper = new ObjectMapper();
     ResultInfo result = new ResultInfo();
     HashSet<ArrayList<String>> answerSet = new HashSet<>();
-    HashSet<?> originalAnswerSetResponse = mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
+    HashSet<?> originalAnswerSetResponse =
+        mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
     for (Object ans : originalAnswerSetResponse) {
       answerSet.add((ArrayList<String>) ans);
     }
@@ -44,31 +44,35 @@ public class ASPRuleController {
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCode = groundingResponse.getAspCode();
 
-//    aspCode = aspCode.replace("\"", "\\\"");
+    //    aspCode = aspCode.replace("\"", "\\\"");
     String[] codeByLine = aspCode.split("\n");
     StringBuilder aspCodeWithoutComment = new StringBuilder();
     for (String code : codeByLine) {
-      if (!code.startsWith("%") && code.length() > 0 && !code.equals(System.getProperty("line.separator"))) {
+      if (!code.startsWith("%")
+          && code.length() > 0
+          && !code.equals(System.getProperty("line.separator"))) {
         aspCodeWithoutComment.append(code).append(System.getProperty("line.separator"));
       }
     }
-        //System.out.println(aspCode);
-        String aspCodeTemp = aspCode.replace(".", ".\n");
-  //  aspCode =
-   //     aspCodeWithoutComment
-  //          .toString()
-  //          .replace(System.getProperty("line.separator"), " ");
+    // System.out.println(aspCode);
+    String aspCodeTemp = aspCodeWithoutComment.toString();
+    //  aspCode =
+    //     aspCodeWithoutComment
+    //          .toString()
+    //          .replace(System.getProperty("line.separator"), " ");
 
-
-    aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
-    String[] aspCodeTempString = aspCode.split("\\.");
+    //    aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length());
+    String[] aspCodeTempString = aspCodeTemp.split("\\." + System.getProperty("line.separator"));
     HashSet<String> LiteralVar = new HashSet<String>();
     for (String s : aspCodeTempString) {
       if (s.startsWith("var(")) LiteralVar.add(s);
     }
     ArrayList<String> ansArray = new ArrayList<String>();
-        //System.out.println("aspCodeTemp");
-        //System.out.println(aspCodeTemp);
+    // System.out.println("aspCodeTemp");
+    // System.out.println(aspCodeTemp);
+    while (aspCodeTemp.endsWith(System.getProperty("line.separator"))) {
+      aspCodeTemp = aspCodeTemp.substring(0, aspCodeTemp.length() - 1);
+    }
     HashSet<ASPRule> aspRules = aspPrgService.programParser(aspCodeTemp);
     for (ASPRule aspRule : aspRules) {
       if (aspRule.getConstant() == "") continue;
@@ -149,11 +153,10 @@ public class ASPRuleController {
           }
           if (is_ok) continue;
           String existVariable = "";
-          if(s.equals("works_at(X,Y)")){
+          if (s.equals("works_at(X,Y)")) {
             blp.append(",parent(X,PARENTS)");
             blp.append(",var(Y)");
-          }
-          else {
+          } else {
             for (String s1 : bindSet) {
               blp.append(",").append(s1);
               existVariable += s1.substring(s1.indexOf("("), s1.indexOf(")"));
@@ -188,17 +191,20 @@ public class ASPRuleController {
         }
         ansArray.add(bln + ".");
       }
-      ansArray.add(bodyAll + ".");
+      if (!bodyAll.toString().equals(" ") && bodyAll.length() > 0) {
+        ansArray.add(bodyAll + ".");
+      }
     }
     StringBuilder AspProgram = new StringBuilder();
     for (String s : ansArray) {
-      //System.out.println(s);
+      // System.out.println(s);
       AspProgram.append(s);
     }
-    String[] aspCodeArray = aspCode.split("\\.");
+    String[] aspCodeArray = aspCodeTemp.split("\\." + System.getProperty("line.separator"));
     for (String s : aspCodeArray) {
-      if (!s.contains(":-") && !s.equals(" ")) {
-         //System.out.println("s"+s);
+      if (!s.contains(":-") && !s.equals(" ") && s.length() >0) {
+        System.out.println("s"+s);
+        if(!s.endsWith("."))
         s += ".";
         AspProgram.append(s);
       }
@@ -221,8 +227,8 @@ public class ASPRuleController {
     }
 
      */
-       // System.out.println("ASPProgram");
-   // System.out.println(AspProgram.toString());
+    System.out.println("ASPProgram");
+    System.out.println(AspProgram.toString());
     GroundAnswerResponse answerSetResponse =
         aspPrgService.solveAndGetGrounding(AspProgram.toString());
     answerSetResponse.setAnswerSet(answerSet);
@@ -232,7 +238,7 @@ public class ASPRuleController {
     for (String s : LiteralVar) {
       List<Literal> literThroughLit = literalRepository.findByLit(s);
       for (Literal literal : literThroughLit) {
-      //  System.out.println(literal.getId());
+        //  System.out.println(literal.getId());
         literalRepository.deleteById(literal.getId());
       }
     }
@@ -361,7 +367,7 @@ public class ASPRuleController {
     ObjectMapper mapper = new ObjectMapper();
     HashSet<?> answerSetResponse =
         mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
-//    System.out.println(answerSetResponse);
+    //    System.out.println(answerSetResponse);
     result.setData(answerSetResponse);
     result.setStatus(1);
     return result;
@@ -463,9 +469,11 @@ public class ASPRuleController {
       for (RuleNode rNode : explanationUniverse.getGraphRuleNodes()) {
         if (rNode.getRuleContent().isFact()) {
           LitNode factLitNode =
-                  new LitNode(
-                          Objects.requireNonNull(
-                                  literalRepository.findById(Integer.parseInt(rNode.getRuleContent().getHeadID())).orElse(null)));
+              new LitNode(
+                  Objects.requireNonNull(
+                      literalRepository
+                          .findById(Integer.parseInt(rNode.getRuleContent().getHeadID()))
+                          .orElse(null)));
           EndEdge topEndEdge = new EndEdge(factLitNode, explanationUniverse.getTop());
           explanationUniverse.setGraphEndEdges(topEndEdge);
         }

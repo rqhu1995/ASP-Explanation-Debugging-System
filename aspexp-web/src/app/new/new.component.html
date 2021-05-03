@@ -96,22 +96,25 @@
     </div>
     <br>
     <div nz-row>
-      <div nz-col nzSpan="6" id="selectBoxes_2">
-      <nz-checkbox-group  [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+      <div nz-col nzSpan="8" id="selectBoxes_2">
+      <nz-checkbox-group  style="font-size: 15pt" [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
       </div>
       <div nz-col nzSpan="8" nzOffset="8">
       <button *ngIf="needBinding" type="button" class="btn btn-beautify btn-sm btn-block" (click)="goBinding()">
         绑定变量
       </button>
+        <button *ngIf="!needBinding" type="button" class="btn btn-beautify btn-sm btn-block" (click)="goBinding()">
+          无需绑定
+        </button>
       </div>
     </div>
 
-    <div *ngIf="allTrueSelected && needBinding" class="row mt-4">
+    <div *ngIf="allTrueSelected" class="row mt-4">
       <p>绑定为真的变量</p>
     </div>
 
     <div>
-      <nz-table *ngIf="allTrueSelected && needBinding" #basicTable [nzData]="literals">
+      <nz-table *ngIf="allTrueSelected" #basicTable [nzData]="literals">
         <thead>
         <tr>
           <th>文字</th>
@@ -130,7 +133,7 @@
         </tbody>
       </nz-table>
     </div>
-    <button *ngIf="allTrueSelected && needBinding" type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="submitBinding()">
+    <button *ngIf="allTrueSelected" type="button" class="btn btn-beautify btn-sm btn-block px-4 mx-2" (click)="submitBinding()">
       确认绑定
     </button>
   </div>
