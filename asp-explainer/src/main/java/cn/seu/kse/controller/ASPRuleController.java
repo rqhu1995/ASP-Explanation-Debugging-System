@@ -422,8 +422,10 @@ public class ASPRuleController {
     ARGraph explanationUniverse = new ARGraph();
     // all rule nodes with parent and children atoms/endnode
     List<String> underivable = aspLiteralService.findAllUnderivable();
-    System.out.println("找到退不出");
-    System.out.println(underivable);
+    HashSet<String> ansLitID = new HashSet<>();
+    for (String ans : answerSet) {
+      ansLitID.add(String.valueOf(literalRepository.findByLit(ans).get(0).getId()));
+    }
     for (ASPRule aspRule : aspRuleRepository.findAll()) {
       RuleNode ruleNode = new RuleNode(aspRule);
       boolean applicable = false;
@@ -432,8 +434,16 @@ public class ASPRuleController {
           new HashSet<>((Arrays.asList(aspRule.getPosBodyIDList().split(","))));
       HashSet<String> negSet =
           new HashSet<>((Arrays.asList(aspRule.getNegBodyIDList().split(","))));
-      if ((answerSet.containsAll(posSet) || posSet.size() == 0)
-          && (Collections.disjoint(answerSet, negSet))) {
+      System.out.println("======");
+      System.out.println(ruleNode.getRuleContent().toString());
+      System.out.println(ansLitID);
+      System.out.println(posSet);
+      System.out.println(negSet);
+      System.out.println(ansLitID.containsAll(posSet));
+      System.out.println(Collections.disjoint(ansLitID,negSet));
+      System.out.println("======");
+      if ((ansLitID.containsAll(posSet) || posSet.size() == 0)
+          && (Collections.disjoint(ansLitID, negSet))) {
         applicable = true;
       }
       LitNode headLit =
