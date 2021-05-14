@@ -53,14 +53,10 @@ public class ASPLiteralServiceImpl implements ASPLiteralService {
     List<ASPRule> rules = ruleRepository.findAll();
     List<String> underivableLiterals = new ArrayList<>();
     for (Literal literal : literals) {
-      System.out.println("literal ...");
-      System.out.println(literal.getId());
       boolean derivable = false;
       for (ASPRule rule : rules) {
-        System.out.println(Arrays.asList(rule.getHeadID().split(",")));
         if(Arrays.asList(rule.getHeadID().split(",")).contains(String.valueOf(literal.getId()))){
           derivable = true;
-          System.out.println("breaking...");
           break;
         }
       }
