@@ -35,11 +35,11 @@ public class ASPRuleController {
     ObjectMapper mapper = new ObjectMapper();
     ResultInfo result = new ResultInfo();
     HashSet<ArrayList<String>> answerSet = new HashSet<>();
-    HashSet<?> originalAnswerSetResponse =
-        mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
-    for (Object ans : originalAnswerSetResponse) {
-      answerSet.add((ArrayList<String>) ans);
-    }
+    //HashSet<?> originalAnswerSetResponse =
+      //  mapper.readValue(Paths.get("answerset.json").toFile(), HashSet.class);
+    //for (Object ans : originalAnswerSetResponse) {
+      //answerSet.add((ArrayList<String>) ans);
+    //}
     // 获取绑定
     HashMap<String, HashSet<String>> bind = groundingResponse.getPreBind();
     String aspCode = groundingResponse.getAspCode();
@@ -200,10 +200,19 @@ public class ASPRuleController {
       // System.out.println(s);
       AspProgram.append(s);
     }
+        System.out.println("aspCtmp");
+        System.out.println(aspCodeTemp);
+        String sep;
+        if(System.getProperty("os.name").contains("Windows")){
+          aspCodeTemp = aspCodeTemp.replaceAll("\r|\n",  System.getProperty("line.separator"));
+          while(aspCodeTemp.contains(System.getProperty("line.separator") + System.getProperty("line.separator")))
+          aspCodeTemp = aspCodeTemp.replaceAll(System.getProperty("line.separator") + System.getProperty("line.separator"),  System.getProperty("line.separator"));
+        }
+
     String[] aspCodeArray = aspCodeTemp.split("\\." + System.getProperty("line.separator"));
     for (String s : aspCodeArray) {
+      System.out.println("s"+s);
       if (!s.contains(":-") && !s.equals(" ") && s.length() >0) {
-        System.out.println("s"+s);
         if(!s.endsWith("."))
         s += ".";
         AspProgram.append(s);
@@ -424,6 +433,7 @@ public class ASPRuleController {
     List<String> underivable = aspLiteralService.findAllUnderivable();
     HashSet<String> ansLitID = new HashSet<>();
     for (String ans : answerSet) {
+      if(literalRepository.findByLit(ans).size() > 0)
       ansLitID.add(String.valueOf(literalRepository.findByLit(ans).get(0).getId()));
     }
     for (ASPRule aspRule : aspRuleRepository.findAll()) {
